@@ -8,7 +8,7 @@
     android:background="?attr/selectableItemBackground">
 
     <TextView
-        android:id="@+id/sessionTitle"
+        android:id="@+id/session_row_Title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Session Title"
@@ -19,14 +19,23 @@
         app:layout_constraintEnd_toEndOf="parent"/>
 
     <TextView
-        android:id="@+id/sessionDate"
+        android:id="@+id/session_row_Date"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Date info"
         android:textSize="14sp"
-        app:layout_constraintTop_toBottomOf="@id/sessionTitle"
+        app:layout_constraintTop_toBottomOf="@id/session_row_Title"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <TextView
+        android:id="@+id/session_row_Status"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Status info"
+        android:textSize="14sp"
+        app:layout_constraintTop_toBottomOf="@id/session_row_Date"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

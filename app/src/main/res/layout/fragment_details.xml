@@ -1,37 +1,113 @@
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/detailsLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp">
 
+    <!-- נושא הסשן -->
     <TextView
-        android:id="@+id/session_topic_text_view"
-        android:layout_width="0dp"
+        android:id="@+id/sessionTopicLabel"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Session Topic"
-        android:textAppearance="?attr/textAppearanceHeadline6"
+        android:textSize="16sp"
+        android:textStyle="bold"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <TextView
+        android:id="@+id/sessionTopicTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="16sp"
+        android:layout_marginTop="4dp"
+        app:layout_constraintTop_toBottomOf="@id/sessionTopicLabel"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
+    <!-- תאריך -->
     <TextView
-        android:id="@+id/session_date_text_view"
-        android:layout_width="0dp"
+        android:id="@+id/sessionDateLabel"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Date"
+        android:textSize="16sp"
+        android:textStyle="bold"
         android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/session_topic_text_view"
+        app:layout_constraintTop_toBottomOf="@id/sessionTopicTextView"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <TextView
+        android:id="@+id/sessionDateTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="16sp"
+        android:layout_marginTop="4dp"
+        app:layout_constraintTop_toBottomOf="@id/sessionDateLabel"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
+    <!-- שעה -->
     <TextView
-        android:id="@+id/session_time_text_view"
-        android:layout_width="0dp"
+        android:id="@+id/sessionTimeLabel"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Time"
+        android:textSize="16sp"
+        android:textStyle="bold"
         android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/session_date_text_view"
+        app:layout_constraintTop_toBottomOf="@id/sessionDateTextView"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <TextView
+        android:id="@+id/sessionTimeTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="16sp"
+        android:layout_marginTop="4dp"
+        app:layout_constraintTop_toBottomOf="@id/sessionTimeLabel"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- כותרת חומרים -->
+    <TextView
+        android:id="@+id/materialsLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Materials"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@id/sessionTimeTextView"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <!-- תמונה לחומר לימוד -->
+    <ImageView
+        android:id="@+id/sessionImageView"
+        android:layout_width="0dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="8dp"
+        android:scaleType="centerCrop"
+        android:contentDescription="Session material image"
+        android:background="#DDDDDD"
+        app:layout_constraintTop_toBottomOf="@id/materialsLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- כפתור עריכה -->
+    <Button
+        android:id="@+id/editSessionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Edit"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@id/sessionImageView"
         app:layout_constraintEnd_toEndOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

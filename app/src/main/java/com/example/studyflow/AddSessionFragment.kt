@@ -1,37 +1,78 @@
 package com.example.studyflow
+
+import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.navigation.Navigation
+import com.example.studyflow.databinding.FragmentAddSessionBinding
+import com.example.studyflow.model.Model
+import com.example.studyflow.model.StudySession
 
-class AddSessionFragment : Fragment() {
+class AddStudySessionFragment : Fragment() {
 
-    private lateinit var topicEditText: EditText
-    private lateinit var dateEditText: EditText
-    private lateinit var timeEditText: EditText
-    private lateinit var saveButton: Button
+    private var cameraLauncher: ActivityResultLauncher<Void?>? = null
+    private var binding: FragmentAddSessionBinding? = null
+    private var didSetImage = false
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_add_session, container, false)
+        binding = FragmentAddSessionBinding.inflate(inflater, container, false)
 
-        topicEditText = view.findViewById(R.id.session_topic_edit_text)
-        dateEditText = view.findViewById(R.id.session_date_edit_text)
-        timeEditText = view.findViewById(R.id.session_time_edit_text)
-        saveButton = view.findViewById(R.id.save_session_button)
+        binding?.saveSessionButton?.setOnClickListener(::onSaveClicked)
+        binding?.takePhotoButton?.setOnClickListener { cameraLauncher?.launch(null) }
 
-        saveButton.setOnClickListener {
-            val topic = topicEditText.text.toString().trim()
-            val date = dateEditText.text.toString().trim()
-            val time = timeEditText.text.toString().trim()
-
+        cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
+            binding?.photoPreview?.setImageBitmap(bitmap)
+            didSetImage = true
         }
 
-        return view
+        return binding?.root
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        binding = null
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        menu.clear()
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    private fun onSaveClicked(view: View) {
+        val topic = binding?.sessionTopicEditText?.text.toString().trim()
+        val date = binding?.sessionDateEditText?.text.toString().trim()
+        val time = binding?.sessionTimeEditText?.text.toString().trim()
+
+        val session = StudySession(topic = topic, date = date, time = time, imageUrl = "")
+
+        binding?.progressBar?.visibility = View.VISIBLE
+
+        if (didSetImage) {
+            val bitmap = (binding?.photoPreview?.drawable as BitmapDrawable).bitmap
+            Model.shared.addStudySession(session, bitmap, Model.Storage.CLOUDINARY) {
+                binding?.progressBar?.visibility = View.GONE
+                Navigation.findNavController(view).popBackStack()
+            }
+        } else {
+            Model.shared.addStudySession(session, null, Model.Storage.CLOUDINARY) {
+                binding?.progressBar?.visibility = View.GONE
+                Navigation.findNavController(view).popBackStack()
+            }
+        }
     }
 }
