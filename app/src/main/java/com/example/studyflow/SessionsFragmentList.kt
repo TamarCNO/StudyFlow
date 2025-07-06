@@ -1,6 +1,18 @@
 package com.example.studyflow
 
-class SessionsFragmentList {
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.studyflow.adapters.SessionsAdapter
+import com.example.studyflow.models.Model
+import com.example.studyflow.models.Session
+import com.example.studyflow.models.Student
+
+class SessionsFragmentList : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: SessionsAdapter
 
@@ -18,19 +30,18 @@ class SessionsFragmentList {
         super.onViewCreated(view, savedInstanceState)
 
         recyclerView = view.findViewById(R.id.sessionsRecyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        // קודם טוען את הסטודנטים
         Model.instance.getAllStudents { students ->
             this.students = students
 
-            // ואז טוען את ה-sessions
             Model.instance.getAllSessions { sessions ->
                 this.sessions = sessions
 
                 adapter = SessionsAdapter(sessions, object : SessionsViewHolder.OnItemClickListener {
                     override fun onItemClick(position: Int) {
                         val session = sessions[position]
-                        // תוכל לעשות משהו עם ה-session שנבחר
+                        // כאן אפשר לטפל בלחיצה על session
                     }
                 })
 

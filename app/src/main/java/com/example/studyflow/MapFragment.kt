@@ -17,11 +17,11 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
-import com.example.studyflow.R
 import com.example.studyflow.data.model.Post
 import com.example.studyflow.databinding.FragmentMapBinding
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
+import com.google.firebase.firestore.FirebaseFirestore
 import java.util.*
 
 class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
@@ -29,7 +29,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
     private var _binding: FragmentMapBinding? = null
     private val binding get() = _binding!!
     private lateinit var mMap: GoogleMap
-    private lateinit var locationManager: LocationManager
     private val LOCATION_PERMISSION_REQUEST_CODE = 1
     private val db = FirebaseFirestore.getInstance()
 
@@ -39,12 +38,14 @@ class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
     ): View {
         _binding = FragmentMapBinding.inflate(inflater, container, false)
 
-        val mapFragment = childFragmentManager.findFragmentById(R.id.mapFragment) as SupportMapFragment
+        val mapFragment = childFragmentManager
+            .findFragmentById(R.id.mapFragment) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
         binding.plusButton.setOnClickListener {
             mMap.animateCamera(CameraUpdateFactory.zoomIn())
         }
+
         binding.minusButton.setOnClickListener {
             mMap.animateCamera(CameraUpdateFactory.zoomOut())
         }
@@ -63,10 +64,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
         fetchPosts { posts ->
             posts.forEach { post ->
                 getLatLngFromAddress(post.locationAddress) { latLng ->
-                    if (latLng != null) {
+                    latLng?.let {
                         val marker = mMap.addMarker(
                             MarkerOptions()
-                                .position(latLng)
+                                .position(it)
                                 .title(post.subject)
                         )
                         marker?.tag = post
@@ -77,9 +78,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
 
         mMap.setOnMarkerClickListener { marker ->
             val post = marker.tag as? Post
-            post?.let {
-                showPostDialog(it)
-            }
+            post?.let { showPostDialog(it) }
             true
         }
     }
@@ -94,14 +93,18 @@ class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
         subjectTextView.text = post.subject
         timeTextView.text = post.dateTime
 
+        // ✨ שימוש ב-Cloudinary URL בלבד
+        val optimizedUrl = post.profileImageUrl
+            .replace("/upload/", "/upload/w_200,h_200,c_fill/")
+
         Glide.with(this)
-            .load(post.profileImageUrl) // Cloudinary URL
+            .load(optimizedUrl)
             .placeholder(R.drawable.profile_placeholder)
             .into(profileImageView)
 
         AlertDialog.Builder(requireContext())
             .setView(view)
-            .setPositiveButton("close", null)
+            .setPositiveButton("Close", null)
             .show()
     }
 
@@ -150,8 +153,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<out String>, grantResults: IntArray
     ) {
-        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE && grantResults.isNotEmpty()
-            && grantResults[0] == PackageManager.PERMISSION_GRANTED
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE &&
+            grantResults.isNotEmpty() &&
+            grantResults[0] == PackageManager.PERMISSION_GRANTED
         ) {
             enableMyLocation()
         } else {
@@ -164,7 +168,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
         _binding = null
     }
 
-    fun fetchPosts(callback: (List<Post>) -> Unit) {
+    // הבאת הפוסטים מ-Firebase
+    private fun fetchPosts(callback: (List<Post>) -> Unit) {
         db.collection("posts")
             .get()
             .addOnSuccessListener { documents ->
@@ -182,7 +187,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
             .addOnFailureListener { it.printStackTrace() }
     }
 
-    fun getLatLngFromAddress(address: String, callback: (LatLng?) -> Unit) {
+    // המרת כתובת ל-LatLng
+    private fun getLatLngFromAddress(address: String, callback: (LatLng?) -> Unit) {
         val geocoder = Geocoder(requireContext(), Locale.getDefault())
         val addresses = geocoder.getFromLocationName(address, 1)
         if (!addresses.isNullOrEmpty()) {
@@ -190,5 +196,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
         } else callback(null)
     }
 
-    override fun onLocationChanged(p0: Location) {}
+    override fun onLocationChanged(location: Location) {
+        // לא בשימוש כרגע
+    }
 }

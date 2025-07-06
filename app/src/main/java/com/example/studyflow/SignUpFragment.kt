@@ -1,20 +1,25 @@
 package com.example.studyflow
 
 import android.os.Bundle
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
+import androidx.navigation.Navigation
 
-class SignUpFragment : Fragment() {
+class RegisterFragment : Fragment() {
 
-    private lateinit var nameInput: EditText
-    private lateinit var emailInput: EditText
-    private lateinit var passwordInput: EditText
-    private lateinit var signUpButton: Button
-    private lateinit var progressBar: ProgressBar
-    private lateinit var loginRedirectButton: Button
+    private lateinit var profileImageView: ImageView
+    private lateinit var cameraButton: ImageButton
+    private lateinit var firstNameEditText: EditText
+    private lateinit var lastNameEditText: EditText
+    private lateinit var emailEditText: EditText
+    private lateinit var passwordEditText: EditText
+    private lateinit var confirmPasswordEditText: EditText
+    private lateinit var registerButton: Button
+    private lateinit var alreadyHaveAccountLink: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -22,58 +27,58 @@ class SignUpFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_sign_up, container, false)
 
-        // Initialize views
-        nameInput = view.findViewById(R.id.etName)
-        emailInput = view.findViewById(R.id.etEmail)
-        passwordInput = view.findViewById(R.id.etPassword)
-        signUpButton = view.findViewById(R.id.btnSignUp)
-        progressBar = view.findViewById(R.id.register_progress)
-        loginRedirectButton = view.findViewById(R.id.move_to_log_in)
+        profileImageView = view.findViewById(R.id.profileImageView)
+        cameraButton = view.findViewById(R.id.cameraButton)
+        firstNameEditText = view.findViewById(R.id.firstNameEditText)
+        lastNameEditText = view.findViewById(R.id.lastNameEditText)
+        emailEditText = view.findViewById(R.id.emailEditText)
+        passwordEditText = view.findViewById(R.id.passwordEditText)
+        confirmPasswordEditText = view.findViewById(R.id.confirmPasswordEditText)
+        registerButton = view.findViewById(R.id.registerButton)
+        alreadyHaveAccountLink = view.findViewById(R.id.alreadyHaveAccountLink)
 
-        // Sign up button click
-        signUpButton.setOnClickListener {
-            signUpUser()
+        cameraButton.setOnClickListener {
+            Toast.makeText(requireContext(), "Implement camera or gallery selection", Toast.LENGTH_SHORT).show()
+            // TODO: הוסף קוד לפתיחת מצלמה או גלריה
         }
 
-        // Navigate to login
-        loginRedirectButton.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, LoginFragment())
-                .commit()
+        registerButton.setOnClickListener {
+            val firstName = firstNameEditText.text.toString().trim()
+            val lastName = lastNameEditText.text.toString().trim()
+            val email = emailEditText.text.toString().trim()
+            val password = passwordEditText.text.toString()
+            val confirmPassword = confirmPasswordEditText.text.toString()
+
+            if (firstName.isEmpty()) {
+                firstNameEditText.error = "Please enter your first name"
+                return@setOnClickListener
+            }
+            if (lastName.isEmpty()) {
+                lastNameEditText.error = "Please enter your last name"
+                return@setOnClickListener
+            }
+            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                emailEditText.error = "Please enter a valid email"
+                return@setOnClickListener
+            }
+            if (password.length < 6) {
+                passwordEditText.error = "Password must be at least 6 characters"
+                return@setOnClickListener
+            }
+            if (password != confirmPassword) {
+                confirmPasswordEditText.error = "Passwords do not match"
+                return@setOnClickListener
+            }
+
+            // TODO: הוסף כאן לוגיקה של שמירת משתמש חדש בבסיס הנתונים / Firebase וכו'
+            Toast.makeText(requireContext(), "Registering user...", Toast.LENGTH_SHORT).show()
+        }
+
+        alreadyHaveAccountLink.setOnClickListener {
+            // ניווט למסך התחברות
+            Navigation.findNavController(it).navigate(R.id.action_registerFragment_to_loginFragment)
         }
 
         return view
-    }
-
-    private fun signUpUser() {
-        val name = nameInput.text.toString().trim()
-        val email = emailInput.text.toString().trim()
-        val password = passwordInput.text.toString().trim()
-
-        // Validation
-        when {
-            name.isEmpty() -> {
-                nameInput.error = "Please enter your name"
-                return
-            }
-            email.isEmpty() -> {
-                emailInput.error = "Please enter your email"
-                return
-            }
-            password.length < 6 -> {
-                passwordInput.error = "Password must be at least 6 characters"
-                return
-            }
-        }
-
-        // Simulate signup
-        progressBar.visibility = View.VISIBLE
-        signUpButton.isEnabled = false
-
-        nameInput.postDelayed({
-            progressBar.visibility = View.GONE
-            signUpButton.isEnabled = true
-            Toast.makeText(requireContext(), "Signed up successfully!", Toast.LENGTH_SHORT).show()
-        }, 1000)
     }
 }
