@@ -8,10 +8,7 @@ import java.time.LocalDateTime
 data class Session(
     @PrimaryKey val id: String,
     val topic: String,
-    val date: LocalDateTime,
-    val status: SessionStatus
+    val date: String,
+    val status: String
 )
 
-enum class SessionStatus {
-    PENDING, COMPLETED, CANCELLED
-}

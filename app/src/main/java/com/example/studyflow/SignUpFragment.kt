@@ -9,7 +9,7 @@ import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 
-class RegisterFragment : Fragment() {
+class SignUpFragment : Fragment() {
 
     private lateinit var profileImageView: ImageView
     private lateinit var cameraButton: ImageButton

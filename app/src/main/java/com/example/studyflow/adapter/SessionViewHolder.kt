@@ -1,24 +1,32 @@
 package com.example.studyflow.adapter
 
-import android.view.LayoutInflater
-import android.view.ViewGroup
+import android.view.View
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
 import com.example.studyflow.R
+import com.example.studyflow.model.Session
+import com.example.studyflow.model.Student
 
-class SessionViewHolder(itemView: View, private val listener: SessionsAdapter(
-private val sessions: <liveData<List<Session>>,
-private val listener: SessionsViewHolder.OnItemClickListener
-) : RecyclerView.Adapter<SessionsViewHolder>() {
+class SessionsViewHolder(
+    itemView: View,
+    private val listener: OnItemClickListener
+) : RecyclerView.ViewHolder(itemView) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SessionsViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.session_row, parent, false)
-        return SessionsViewHolder(view, listener)
+    private val topicTextView: TextView = itemView.findViewById(R.id.session_row_Topic)
+    private val dateTextView: TextView = itemView.findViewById(R.id.session_row_Date)
+    private val statusTextView: TextView = itemView.findViewById(R.id.session_row_Status)
+
+    fun bind(session: Session, student: Student?, position: Int) {
+        topicTextView.text = session.topic
+        dateTextView.text = session.date.toString()
+        statusTextView.text = session.status
+
+        itemView.setOnClickListener {
+            listener.onItemClick(position)
+        }
     }
 
-    override fun onBindViewHolder(holder: SessionsViewHolder, position: Int) {
-        holder.bind(sessions[position], position)
+    interface OnItemClickListener {
+        fun onItemClick(position: Int)
     }
-
-    override fun getItemCount(): Int = sessions.size
 }
-

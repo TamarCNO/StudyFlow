@@ -1,6 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/nav_graph">
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/loginFragment">
 
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.example.studyflow.LoginFragment"
+        android:label="LoginFragment" >
+        <action
+            android:id="@+id/action_loginFragment_to_sessionsFragmentList"
+            app:destination="@id/sessionsFragmentList" />
+        <action
+            android:id="@+id/action_loginFragment_to_signUpFragment"
+            app:destination="@id/signUpFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/signUpFragment"
+        android:name="com.example.studyflow.SignUpFragment"
+        android:label="SignUpFragment" />
+    <fragment
+        android:id="@+id/sessionsFragmentList"
+        android:name="com.example.studyflow.SessionsFragmentList"
+        android:label="SessionsFragmentList" >
+        <action
+            android:id="@+id/action_sessionsFragmentList_to_addStudySessionFragment"
+            app:destination="@id/addStudySessionFragment" />
+        <action
+            android:id="@+id/action_sessionsFragmentList_to_profileFragment"
+            app:destination="@id/profileFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/addStudySessionFragment"
+        android:name="com.example.studyflow.AddStudySessionFragment"
+        android:label="AddStudySessionFragment" >
+        <action
+            android:id="@+id/action_addStudySessionFragment_to_detailsFragment"
+            app:destination="@id/detailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/detailsFragment"
+        android:name="com.example.studyflow.DetailsFragment"
+        android:label="DetailsFragment" >
+        <argument
+            android:name="sessionId"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_detailsFragment_to_editSessionFragment"
+            app:destination="@id/editSessionFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/editSessionFragment"
+        android:name="com.example.studyflow.EditSessionFragment"
+        android:label="EditSessionFragment" />
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.studyflow.ProfileFragment"
+        android:label="ProfileFragment" >
+        <action
+            android:id="@+id/action_profileFragment_to_editProfileFragment"
+            app:destination="@id/editProfileFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/editProfileFragment"
+        android:name="com.example.studyflow.EditProfileFragment"
+        android:label="EditProfileFragment" />
 </navigation>

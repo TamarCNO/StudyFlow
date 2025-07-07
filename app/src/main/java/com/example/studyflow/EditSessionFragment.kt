@@ -22,40 +22,32 @@ class EditSessionFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_edit_session, container, false)
 
-        // אתחול ה־Views לפי ה־IDs מה־layout
         topicEditText = view.findViewById(R.id.sessionTopicValue)
         dateEditText = view.findViewById(R.id.sessionDateValue)
         timeEditText = view.findViewById(R.id.sessionTimeValue)
         updateButton = view.findViewById(R.id.editSessionButton)
 
-        // קבלת הנתונים שהועברו לפרגמנט (לעריכה)
         val args = arguments
         val topic = args?.getString("topic") ?: ""
         val date = args?.getString("date") ?: ""
         val time = args?.getString("time") ?: ""
 
-        // הצגת הנתונים בשדות העריכה
         topicEditText.setText(topic)
         dateEditText.setText(date)
         timeEditText.setText(time)
 
-        // מאזין לכפתור שמירה
+
         updateButton.setOnClickListener {
             val updatedTopic = topicEditText.text.toString().trim()
             val updatedDate = dateEditText.text.toString().trim()
             val updatedTime = timeEditText.text.toString().trim()
 
-            // - שליחה חזרה לפרגמנט הקודם
-            // - שמירה בבסיס נתונים
-
-            // לדוגמה, נבצע חזרה עם העברת הנתונים לפרגמנט הקודם דרך Navigation עם Bundle:
             val bundle = Bundle().apply {
                 putString("topic", updatedTopic)
                 putString("date", updatedDate)
                 putString("time", updatedTime)
             }
 
-            // נווט חזרה (למשל לפרגמנט הפרטים) עם הנתונים המעודכנים
             Navigation.findNavController(it).navigate(R.id.action_editSessionFragment_to_detailsFragment)
         }
 

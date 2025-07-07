@@ -55,7 +55,6 @@ class LoginFragment : Fragment() {
         }
 
         signUpLink.setOnClickListener {
-            // דוגמה לניווט למסך הרשמה
             Navigation.findNavController(it).navigate(R.id.action_loginFragment_to_signUpFragment)
         }
 
