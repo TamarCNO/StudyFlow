@@ -46,6 +46,9 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+    buildFeatures {
+        viewBinding = true
+    }
 }
 
 dependencies {
@@ -59,6 +62,7 @@ dependencies {
     implementation(libs.cloudinary.android)
 
     implementation(libs.room.runtime)
+    implementation(libs.play.services.maps)
     kapt(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
 

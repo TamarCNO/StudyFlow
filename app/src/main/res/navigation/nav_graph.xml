@@ -32,7 +32,7 @@
     </fragment>
     <fragment
         android:id="@+id/addStudySessionFragment"
-        android:name="com.example.studyflow.AddStudySessionFragment"
+        android:name="com.example.studyflow.AddSessionFragment"
         android:label="AddStudySessionFragment" >
         <action
             android:id="@+id/action_addStudySessionFragment_to_detailsFragment"

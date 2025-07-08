@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/SessionsListFragment"
+        android:icon="@drawable/ic_dialog_info"
+        android:title=""/>
+    <item android:id="@+id/addSessionFragment"
+        android:icon="@drawable/ic_add_task"
+        android:title="Add session"/>
+    <item android:id="@+id/MapFragment"
+        android:icon="@drawable/map_icon"
+        android:title="Map"/>
+</menu>

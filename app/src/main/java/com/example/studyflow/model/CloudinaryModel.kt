@@ -1,5 +1,6 @@
 package com.example.studyflow.model
 
+
 import android.content.Context
 import android.graphics.Bitmap
 import com.cloudinary.android.MediaManager
@@ -11,33 +12,27 @@ import com.example.studyflow.base.MyApplication
 import java.io.File
 import java.io.FileOutputStream
 
-
 class CloudinaryModel {
-    init {
-        val config = mapOf(
-            "cloud_name" to "add_name",
-            "api_key" to "add_key",
-            "api_secret" to "add_secret"
+        private val cloudinaryConfig = mapOf(
+            "cloud_name" to "dcicwlwov"
         )
-
-        MyApplication.Globals.context?.let {
-            MediaManager.init(it, config)
+    init {
+        MyApplication.Globals.context?.let { appContext  ->
+            MediaManager.init(appContext , cloudinaryConfig)
             MediaManager.get().globalUploadPolicy = GlobalUploadPolicy.Builder()
                 .maxConcurrentRequests(3)
                 .networkPolicy(UploadPolicy.NetworkType.UNMETERED)
                 .build()
         }
     }
-
-    fun uploadBitmap(bitmap: Bitmap, onSuccess: (String) -> Unit, onError: (String) -> Unit) {
-        val context = MyApplication.Globals.context ?: return
-        val file = bitmapToFile(bitmap, context)
-
+        fun uploadBitmap(bitmap: Bitmap, onSuccess: (String) -> Unit, onError: (String) -> Unit) {
+            val context = MyApplication.Globals.context ?: run {
+                onError("Application context is null, cannot upload.")
+                return
+            }
+val file = bitmapToFile(bitmap, context)
         MediaManager.get().upload(file.path)
-            .option(
-                "folder",
-                "images"
-            ) // Optional: Specify a folder in your Cloudinary account
+            .option("upload_preset", "studyflow_unsigned_uploads") // Optional: Specify a folder in your Cloudinary account
             .callback(object : UploadCallback {
                 override fun onStart(requestId: String) {
                     // Called when upload starts
@@ -49,7 +44,15 @@ class CloudinaryModel {
 
                 override fun onSuccess(requestId: String, resultData: Map<*, *>) {
                     val publicUrl = resultData["secure_url"] as? String ?: ""
+                    if (publicUrl.isNotEmpty()) {
                     onSuccess(publicUrl) // Return the URL of the uploaded image
+                    println("Cloudinary Upload Successful for $requestId. URL: $publicUrl")
+                }
+                    else {
+                        onError("Empty URL received from Cloudinary")
+                        System.err.println("Cloudinary Upload Warning: Public URL empty for $requestId.")
+                    }
+                    file.delete()
                 }
 
                 override fun onError(requestId: String?, error: ErrorInfo?) {
@@ -57,8 +60,7 @@ class CloudinaryModel {
                 }
 
                 override fun onReschedule(requestId: String?, error: ErrorInfo?) {
-                    TODO("Not yet implemented")
-                }
+                    println("Cloudinary Upload Rescheduled for $requestId. Error: ${error?.description}")                }
 
             })
             .dispatch()

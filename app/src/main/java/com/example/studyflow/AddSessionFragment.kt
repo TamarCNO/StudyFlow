@@ -10,9 +10,8 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import com.example.studyflow.databinding.FragmentAddSessionBinding
 import com.example.studyflow.model.Model
-import com.example.studyflow.model.StudySession
 
-class AddStudySessionFragment : Fragment() {
+class AddSessionFragment : Fragment() {
 
     private lateinit var cameraLauncher: ActivityResultLauncher<Void?>
     private var _binding: FragmentAddSessionBinding? = null
@@ -26,7 +25,7 @@ class AddStudySessionFragment : Fragment() {
         // Register camera launcher
         cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
             if (bitmap != null) {
-                binding.photoPreview.setImageBitmap(bitmap)
+                binding.sessionImageView.setImageBitmap(bitmap)
                 didSetImage = true
             } else {
                 Toast.makeText(requireContext(), "No image captured", Toast.LENGTH_SHORT).show()
@@ -69,7 +68,7 @@ class AddStudySessionFragment : Fragment() {
             return
         }
 
-        val session = StudySession(topic = topic, date = date, time = time, imageUrl = "")
+        val session = Session(topic = topic, date = date, time = time, imageUrl = "")
 
         binding.progressBar.visibility = View.VISIBLE
 
@@ -83,13 +82,13 @@ class AddStudySessionFragment : Fragment() {
         if (didSetImage) {
             val bitmap = (binding.photoPreview.drawable as? BitmapDrawable)?.bitmap
             if (bitmap != null) {
-                Model.shared.addStudySession(session, bitmap, Model.Storage.CLOUDINARY, onComplete)
+                Model.shared.addSession(session, bitmap, Model.Storage.CLOUDINARY, onComplete)
             } else {
                 Toast.makeText(requireContext(), "Error retrieving image", Toast.LENGTH_SHORT).show()
                 binding.progressBar.visibility = View.GONE
             }
         } else {
-            Model.shared.addStudySession(session, null, Model.Storage.CLOUDINARY, onComplete)
+            Model.shared.addSession(session, null, Model.Storage.CLOUDINARY, onComplete)
         }
     }
 }

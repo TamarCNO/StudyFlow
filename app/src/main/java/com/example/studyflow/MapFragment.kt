@@ -16,12 +16,15 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import com.bumptech.glide.Glide
-import com.example.studyflow.data.model.Post
+import androidx.lifecycle.lifecycleScope
 import com.example.studyflow.databinding.FragmentMapBinding
+import com.example.studyflow.model.PostEntity
+import com.example.studyflow.model.repository.PostRepository
+import com.example.studyflow.model.dao.AppLocalDb
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
-import com.google.firebase.firestore.FirebaseFirestore
+import com.squareup.picasso.Picasso
+import kotlinx.coroutines.launch
 import java.util.*
 
 class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
@@ -30,7 +33,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
     private val binding get() = _binding!!
     private lateinit var mMap: GoogleMap
     private val LOCATION_PERMISSION_REQUEST_CODE = 1
-    private val db = FirebaseFirestore.getInstance()
+
+    private lateinit var postRepository: PostRepository
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -41,6 +45,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
         val mapFragment = childFragmentManager
             .findFragmentById(R.id.mapFragment) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+        // אתחול ה-Repository עם ה-Dao של Room
+        val postDao = AppLocalDb.db.postDao()
+        postRepository = PostRepository(postDao)
 
         binding.plusButton.setOnClickListener {
             mMap.animateCamera(CameraUpdateFactory.zoomIn())
@@ -61,46 +69,55 @@ class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
         checkLocationPermission()
         moveToCurrentLocation()
 
-        fetchPosts { posts ->
-            posts.forEach { post ->
-                getLatLngFromAddress(post.locationAddress) { latLng ->
-                    latLng?.let {
-                        val marker = mMap.addMarker(
-                            MarkerOptions()
-                                .position(it)
-                                .title(post.subject)
-                        )
-                        marker?.tag = post
-                    }
-                }
-            }
+        // טעינת פוסטים מה-DB באופן אסינכרוני
+        lifecycleScope.launch {
+            val posts = postRepository.getAllPosts()
+            updateMapWithPosts(posts)
         }
 
         mMap.setOnMarkerClickListener { marker ->
-            val post = marker.tag as? Post
-            post?.let { showPostDialog(it) }
-            true
+            val post = marker.tag
+            if (post != null) {
+                showPostDialog(post)
+                true
+            } else false
         }
     }
 
-    private fun showPostDialog(post: Post) {
+    private fun updateMapWithPosts(posts: List<PostEntity>) {
+        mMap.clear()
+        posts.forEach { post ->
+            getLatLngFromAddress(post.locationAddress) { latLng ->
+                latLng?.let {
+                    val marker = mMap.addMarker(
+                        MarkerOptions()
+                            .position(it)
+                            .title(post.subject)
+                    )
+                    marker?.tag = post
+                }
+            }
+        }
+    }
+
+    private fun showPostDialog(post: Any) {
         val view = layoutInflater.inflate(R.layout.dialog_post_info, null)
 
         val profileImageView = view.findViewById<ImageView>(R.id.imageProfile)
         val subjectTextView = view.findViewById<TextView>(R.id.textSubject)
         val timeTextView = view.findViewById<TextView>(R.id.textTime)
 
-        subjectTextView.text = post.subject
-        timeTextView.text = post.dateTime
+        if (post is PostEntity) {
+            subjectTextView.text = post.subject
+            timeTextView.text = post.dateTime
 
-        // ✨ שימוש ב-Cloudinary URL בלבד
-        val optimizedUrl = post.profileImageUrl
-            .replace("/upload/", "/upload/w_200,h_200,c_fill/")
+            val optimizedUrl = post.profileImageUrl.replace("/upload/", "/upload/w_200,h_200,c_fill/")
 
-        Glide.with(this)
-            .load(optimizedUrl)
-            .placeholder(R.drawable.profile_placeholder)
-            .into(profileImageView)
+            Picasso.get()
+                .load(optimizedUrl)
+                .placeholder(R.drawable.profile_placeholder)
+                .into(profileImageView)
+        }
 
         AlertDialog.Builder(requireContext())
             .setView(view)
@@ -163,40 +180,27 @@ class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
-    // הבאת הפוסטים מ-Firebase
-    private fun fetchPosts(callback: (List<Post>) -> Unit) {
-        db.collection("posts")
-            .get()
-            .addOnSuccessListener { documents ->
-                val posts = documents.map { doc ->
-                    Post(
-                        id = doc.id,
-                        subject = doc.getString("subject") ?: "",
-                        dateTime = doc.getString("dateTime") ?: "",
-                        profileImageUrl = doc.getString("profileImageUrl") ?: "",
-                        locationAddress = doc.getString("location") ?: ""
-                    )
-                }
-                callback(posts)
-            }
-            .addOnFailureListener { it.printStackTrace() }
-    }
-
-    // המרת כתובת ל-LatLng
     private fun getLatLngFromAddress(address: String, callback: (LatLng?) -> Unit) {
         val geocoder = Geocoder(requireContext(), Locale.getDefault())
-        val addresses = geocoder.getFromLocationName(address, 1)
-        if (!addresses.isNullOrEmpty()) {
-            callback(LatLng(addresses[0].latitude, addresses[0].longitude))
-        } else callback(null)
+        Thread {
+            try {
+                val addresses = geocoder.getFromLocationName(address, 1)
+                val latLng = if (!addresses.isNullOrEmpty())
+                    LatLng(addresses[0].latitude, addresses[0].longitude)
+                else null
+                requireActivity().runOnUiThread { callback(latLng) }
+            } catch (e: Exception) {
+                requireActivity().runOnUiThread { callback(null) }
+            }
+        }.start()
     }
 
     override fun onLocationChanged(location: Location) {
         // לא בשימוש כרגע
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

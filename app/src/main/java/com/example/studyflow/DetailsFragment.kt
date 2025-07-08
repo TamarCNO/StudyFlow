@@ -9,7 +9,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.navigation.Navigation
+import androidx.navigation.findNavController
 
 class DetailsFragment : Fragment() {
 
@@ -26,7 +26,6 @@ class DetailsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_details, container, false)
-
         topicTextView = view.findViewById(R.id.sessionTopicTextView)
         dateTextView = view.findViewById(R.id.sessionDateTextView)
         timeTextView = view.findViewById(R.id.sessionTimeTextView)
@@ -53,10 +52,11 @@ class DetailsFragment : Fragment() {
                 putString("time", timeTextView.text.toString())
                 imageBytes?.let { putByteArray("imageBitmap", it) }
             }
-            Navigation.findNavController(it).navigate(
+            it.findNavController().navigate(
                 R.id.action_detailsFragment_to_editSessionFragment,
                 bundle
             )
+
         }
 
         return view
