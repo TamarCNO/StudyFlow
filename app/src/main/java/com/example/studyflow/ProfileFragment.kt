@@ -8,6 +8,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 
 class ProfileFragment : Fragment(){
 
@@ -36,11 +37,11 @@ class ProfileFragment : Fragment(){
             buttonEditProfile = view.findViewById(R.id.buttonEditProfile)
 
             buttonSessions.setOnClickListener {
-                findNavController().navigate(R.id.action_userProfileFragment_to_sessionsListFragment)
+                findNavController().navigate(R.id.action_profileFragment_to_sessionsFragmentList)
             }
 
             buttonEditProfile.setOnClickListener {
-                findNavController().navigate(R.id.action_userProfileFragment_to_editProfileFragment)
+                findNavController().navigate(R.id.action_profileFragment_to_editProfileFragment)
             }
         }
     }

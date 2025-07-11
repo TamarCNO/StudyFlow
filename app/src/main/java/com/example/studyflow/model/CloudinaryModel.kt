@@ -1,6 +1,5 @@
 package com.example.studyflow.model
 
-
 import android.content.Context
 import android.graphics.Bitmap
 import com.cloudinary.android.MediaManager
@@ -17,7 +16,7 @@ class CloudinaryModel {
             "cloud_name" to "dcicwlwov"
         )
     init {
-        MyApplication.Globals.context?.let { appContext  ->
+        MyApplication.Globals.appContext?.let { appContext  ->
             MediaManager.init(appContext , cloudinaryConfig)
             MediaManager.get().globalUploadPolicy = GlobalUploadPolicy.Builder()
                 .maxConcurrentRequests(3)
@@ -26,7 +25,7 @@ class CloudinaryModel {
         }
     }
         fun uploadBitmap(bitmap: Bitmap, onSuccess: (String) -> Unit, onError: (String) -> Unit) {
-            val context = MyApplication.Globals.context ?: run {
+            val context = MyApplication.Globals.appContext ?: run {
                 onError("Application context is null, cannot upload.")
                 return
             }
@@ -61,7 +60,6 @@ val file = bitmapToFile(bitmap, context)
 
                 override fun onReschedule(requestId: String?, error: ErrorInfo?) {
                     println("Cloudinary Upload Rescheduled for $requestId. Error: ${error?.description}")                }
-
             })
             .dispatch()
     }

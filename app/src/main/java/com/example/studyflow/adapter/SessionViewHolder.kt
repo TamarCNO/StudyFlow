@@ -15,11 +15,13 @@ class SessionsViewHolder(
     private val topicTextView: TextView = itemView.findViewById(R.id.session_row_Topic)
     private val dateTextView: TextView = itemView.findViewById(R.id.session_row_Date)
     private val statusTextView: TextView = itemView.findViewById(R.id.session_row_Status)
+    private val studentEmailTextView: TextView = itemView.findViewById(R.id.session_row_StudentEmail)
 
     fun bind(session: Session, student: Student?, position: Int) {
         topicTextView.text = session.topic
         dateTextView.text = session.date.toString()
         statusTextView.text = session.status
+        studentEmailTextView.text = student?.email ?: "No email"
 
         itemView.setOnClickListener {
             listener.onItemClick(position)

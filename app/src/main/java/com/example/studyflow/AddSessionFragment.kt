@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import com.example.studyflow.databinding.FragmentAddSessionBinding
 import com.example.studyflow.model.Model
+import com.example.studyflow.model.Session
 
 class AddSessionFragment : Fragment() {
 
@@ -39,11 +40,10 @@ class AddSessionFragment : Fragment() {
     ): View {
         _binding = FragmentAddSessionBinding.inflate(inflater, container, false)
 
-        // Save button
         binding.saveSessionButton.setOnClickListener { onSaveClicked(it) }
 
         // Take photo button
-        binding.takePhotoButton.setOnClickListener { cameraLauncher.launch(null) }
+        binding.editMaterialImageButton.setOnClickListener { cameraLauncher.launch(null) }
 
         return binding.root
     }
@@ -67,28 +67,35 @@ class AddSessionFragment : Fragment() {
             Toast.makeText(requireContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show()
             return
         }
-
+TODO("cheak email")
         val session = Session(topic = topic, date = date, time = time, imageUrl = "")
 
         binding.progressBar.visibility = View.VISIBLE
 
-        val onComplete = {
-            if (isAdded) {
-                binding.progressBar.visibility = View.GONE
-                Navigation.findNavController(view).popBackStack()
-            }
-        }
-
         if (didSetImage) {
-            val bitmap = (binding.photoPreview.drawable as? BitmapDrawable)?.bitmap
+            val bitmap = (binding.sessionImageView.drawable as? BitmapDrawable)?.bitmap
             if (bitmap != null) {
-                Model.shared.addSession(session, bitmap, Model.Storage.CLOUDINARY, onComplete)
+                Model.shared.addSessionWithImage(session, bitmap) { updatedSession ->
+                    binding.progressBar.visibility = View.GONE
+                    if (updatedSession != null) {
+                        Navigation.findNavController(view).popBackStack()
+                    } else {
+                        Toast.makeText(requireContext(), "Failed to upload image", Toast.LENGTH_SHORT).show()
+                    }
+                }
             } else {
                 Toast.makeText(requireContext(), "Error retrieving image", Toast.LENGTH_SHORT).show()
                 binding.progressBar.visibility = View.GONE
             }
         } else {
-            Model.shared.addSession(session, null, Model.Storage.CLOUDINARY, onComplete)
+            Model.shared.addSessionWithImage(session, null) { updatedSession ->
+                binding.progressBar.visibility = View.GONE
+                if (updatedSession != null) {
+                    Navigation.findNavController(view).popBackStack()
+                } else {
+                    Toast.makeText(requireContext(), "Failed to save session", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 }

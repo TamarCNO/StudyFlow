@@ -21,10 +21,9 @@ class SessionsAdapter(
 
     override fun onBindViewHolder(holder: SessionsViewHolder, position: Int) {
         val session = sessions[position]
-        val student = students.find { it.id == session.studentId }
+        val student = students.find { it.email == session.studentEmail }
 
         holder.bind(session, student, position)
     }
-
     override fun getItemCount(): Int = sessions.size
 }

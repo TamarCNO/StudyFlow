@@ -1,15 +1,26 @@
-package com.example.studyflow
+package com.example.studyflow.auth
 
 import android.os.Bundle
 import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.Navigation
+import com.example.studyflow.R
+
 
 class SignUpFragment : Fragment() {
+
+    private val viewModel: AuthViewModel by viewModels()
 
     private lateinit var profileImageView: ImageView
     private lateinit var cameraButton: ImageButton
@@ -70,14 +81,30 @@ class SignUpFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            // TODO: הוסף כאן לוגיקה של שמירת משתמש חדש בבסיס הנתונים / Firebase וכו'
-            Toast.makeText(requireContext(), "Registering user...", Toast.LENGTH_SHORT).show()
+            registerButton.isEnabled = false
+
+            val form = RegisterForm(firstName, lastName, email, password)
+            viewModel.register(form) {
+                registerButton.isEnabled = true
+                // ניווט חזרה למסך ההתחברות אחרי הרשמה מוצלחת
+                Navigation.findNavController(view).navigate(R.id.action_signUpFragment_to_loginFragment)
+            }
         }
 
         alreadyHaveAccountLink.setOnClickListener {
-            // ניווט למסך התחברות
-            Navigation.findNavController(it).navigate(R.id.action_registerFragment_to_loginFragment)
+            Navigation.findNavController(it).navigate(R.id.action_signUpFragment_to_loginFragment)
         }
+
+        // התבוננות בטעינה ושגיאות
+        viewModel.loadingState.observe(viewLifecycleOwner, Observer { loadingState ->
+            registerButton.isEnabled = (loadingState != LoadingState.Loading)
+        })
+
+        viewModel.exceptionsState.observe(viewLifecycleOwner, Observer { exception ->
+            exception?.let {
+                Toast.makeText(requireContext(), "Error: ${it.message}", Toast.LENGTH_LONG).show()
+            }
+        })
 
         return view
     }

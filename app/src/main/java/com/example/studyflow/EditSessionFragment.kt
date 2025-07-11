@@ -21,16 +21,15 @@ class EditSessionFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_edit_session, container, false)
-
         topicEditText = view.findViewById(R.id.sessionTopicValue)
         dateEditText = view.findViewById(R.id.sessionDateValue)
         timeEditText = view.findViewById(R.id.sessionTimeValue)
         updateButton = view.findViewById(R.id.editSessionButton)
 
-        val args = arguments
-        val topic = args?.getString("topic") ?: ""
-        val date = args?.getString("date") ?: ""
-        val time = args?.getString("time") ?: ""
+        val args = EditSessionFragmentArgs.fromBundle(requireArguments())
+        val topic = args.topic
+        val date = args.date
+        val time = args.time
 
         topicEditText.setText(topic)
         dateEditText.setText(date)

@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/loginFragment"
-        android:name="com.example.studyflow.LoginFragment"
+        android:name="com.example.studyflow.auth.LoginFragment"
         android:label="LoginFragment" >
         <action
             android:id="@+id/action_loginFragment_to_sessionsFragmentList"
@@ -17,8 +17,12 @@
     </fragment>
     <fragment
         android:id="@+id/signUpFragment"
-        android:name="com.example.studyflow.SignUpFragment"
-        android:label="SignUpFragment" />
+        android:name="com.example.studyflow.auth.SignUpFragment"
+        android:label="SignUpFragment" >
+        <action
+            android:id="@+id/action_signUpFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+    </fragment>
     <fragment
         android:id="@+id/sessionsFragmentList"
         android:name="com.example.studyflow.SessionsFragmentList"
@@ -52,7 +56,20 @@
     <fragment
         android:id="@+id/editSessionFragment"
         android:name="com.example.studyflow.EditSessionFragment"
-        android:label="EditSessionFragment" />
+        android:label="EditSessionFragment" >
+         <argument
+            android:name="topic"
+            app:argType="string" />
+        <argument
+            android:name="date"
+            app:argType="string" />
+        <argument
+            android:name="time"
+            app:argType="string" />
+    <action
+        android:id="@+id/action_editSessionFragment_to_detailsFragment"
+        app:destination="@id/detailsFragment" />
+</fragment>
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.example.studyflow.ProfileFragment"
@@ -60,6 +77,9 @@
         <action
             android:id="@+id/action_profileFragment_to_editProfileFragment"
             app:destination="@id/editProfileFragment" />
+        <action
+            android:id="@+id/action_profileFragment_to_sessionsFragmentList"
+            app:destination="@id/sessionsFragmentList" />
     </fragment>
     <fragment
         android:id="@+id/editProfileFragment"
