@@ -1,5 +1,6 @@
 package com.example.studyflow.auth
 
+import AuthViewModel
 import android.os.Bundle
 import android.util.Patterns
 import android.view.LayoutInflater

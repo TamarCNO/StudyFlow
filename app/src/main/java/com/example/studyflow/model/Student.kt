@@ -3,7 +3,7 @@ package com.example.studyflow.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity
+@Entity(tableName = "students")
 data class Student(
     @PrimaryKey val id: String = "",
     val first_name: String = "",

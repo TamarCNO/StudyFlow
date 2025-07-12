@@ -69,6 +69,10 @@ class AuthViewModel : ViewModel() {
                 loadingState.postValue(LoadingState.Error)
                 onComplete()
             }
+            fun isUserLoggedIn(): Boolean {
+                return auth.currentUser != null
+            }
+
         }
     }
 

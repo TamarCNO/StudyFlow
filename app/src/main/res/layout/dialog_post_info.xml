@@ -20,7 +20,7 @@
         android:id="@+id/textSubject"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="נושא הפוסט"
+        android:text="Topic"
         android:textStyle="bold"
         android:textSize="18sp"
         android:textAlignment="center"
