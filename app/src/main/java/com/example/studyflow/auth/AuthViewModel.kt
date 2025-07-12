@@ -1,80 +1,58 @@
-import androidx.lifecycle.*
+package com.example.studyflow.auth
+
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.FirebaseFirestoreSettings
-import kotlinx.coroutines.tasks.await
+import com.google.firebase.auth.FirebaseUser
 
 class AuthViewModel : ViewModel() {
 
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
-    private val firestore = FirebaseFirestore.getInstance()
-    private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
 
-    init {
-        val settings = FirebaseFirestoreSettings.Builder()
-            .setPersistenceEnabled(true)  // אפשר להחליף ל-false לביטול קאש מקומי
-            .build()
-        db.firestoreSettings = settings
+    private val _user = MutableLiveData<FirebaseUser?>(auth.currentUser)
+    val user: LiveData<FirebaseUser?> = _user
+
+    private val _errorMessage = MutableLiveData<String?>()
+    val errorMessage: LiveData<String?> = _errorMessage
+
+    private val _loading = MutableLiveData(false)
+    val loading: LiveData<Boolean> = _loading
+
+    fun signUp(email: String, password: String, onSuccess: () -> Unit) {
+        _loading.value = true
+        auth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                _loading.value = false
+                if (task.isSuccessful) {
+                    _user.value = auth.currentUser
+                    onSuccess()
+                } else {
+                    _errorMessage.value = task.exception?.message ?: "Sign up failed"
+                }
+            }
     }
 
-    val loadingState = MutableLiveData<LoadingState>()
-    val exceptionsState = MutableLiveData<Exception?>()
-
-    fun registerStudent(student: Student, onComplete: () -> Unit) {
-        loadingState.value = LoadingState.Loading
-        exceptionsState.value = null
-
-        viewModelScope.launch {
-            try {
-                // יצירת משתמש ב-Firebase Auth
-                val authResult = auth.createUserWithEmailAndPassword(student.email, student.password).await()
-
-                // שמירת פרטי משתמש ב-Firestore תחת אוסף "students" עם id = uid של FirebaseAuth
-                val uid = authResult.user?.uid ?: throw Exception("User ID is null")
-
-                val studentData = mapOf(
-                    "id" to uid,
-                    "first_name" to student.first_name,
-                    "last_name" to student.last_name,
-                    "email" to student.email,
-                    "profileImageUrl" to student.profileImageUrl
-                )
-
-                firestore.collection("students")
-                    .document(uid)
-                    .set(studentData)
-                    .await()
-
-                loadingState.postValue(LoadingState.Success)
-                onComplete()
-            } catch (e: Exception) {
-                exceptionsState.postValue(e)
-                loadingState.postValue(LoadingState.Error)
-                onComplete()
+    fun login(email: String, password: String, onSuccess: () -> Unit) {
+        _loading.value = true
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                _loading.value = false
+                if (task.isSuccessful) {
+                    _user.value = auth.currentUser
+                    onSuccess()
+                } else {
+                    _errorMessage.value = task.exception?.message ?: "Login failed"
+                }
             }
-        }
+    }
+    fun isUserLoggedIn(): Boolean = auth.currentUser != null
+    fun logout() {
+        auth.signOut()
+        _user.value = null
     }
 
-    fun login(email: String, password: String, onComplete: () -> Unit) {
-        loadingState.value = LoadingState.Loading
-        exceptionsState.value = null
-
-        viewModelScope.launch {
-            try {
-                auth.signInWithEmailAndPassword(email, password).await()
-                loadingState.postValue(LoadingState.Success)
-                onComplete()
-            } catch (e: Exception) {
-                exceptionsState.postValue(e)
-                loadingState.postValue(LoadingState.Error)
-                onComplete()
-            }
-            fun isUserLoggedIn(): Boolean {
-                return auth.currentUser != null
-            }
-
-        }
+    fun clearError() {
+        _errorMessage.value = null
     }
-
-    // אפשר להוסיף פונקציות נוספות כמו logout, getCurrentUser וכו'
 }

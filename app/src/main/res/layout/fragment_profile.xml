@@ -107,7 +107,6 @@
         app:layout_constraintStart_toStartOf="@id/guidelineValues"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/labelEmail" />
-
     <!-- Sessions Button -->
     <Button
         android:id="@+id/buttonSessions"
@@ -131,5 +130,18 @@
         app:layout_constraintStart_toEndOf="@id/buttonSessions"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintWidth_percent="0.45" />
+
+    <!-- Logout Button -->
+    <Button
+        android:id="@+id/buttonLogout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Logout"
+        android:layout_marginTop="24dp"
+        android:backgroundTint="@android:color/holo_red_light"
+        android:textColor="@android:color/white"
+        app:layout_constraintTop_toBottomOf="@id/buttonSessions"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

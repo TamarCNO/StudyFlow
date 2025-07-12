@@ -11,7 +11,6 @@ import com.example.studyflow.adapter.SessionsAdapter
 import com.example.studyflow.adapter.SessionsViewHolder
 import com.example.studyflow.model.Model
 import com.example.studyflow.model.Session
-import com.example.studyflow.model.Student
 
 class SessionsFragmentList : Fragment() {
     private lateinit var recyclerView: RecyclerView

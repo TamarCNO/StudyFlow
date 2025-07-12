@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:padding="24dp">
 
-    <!-- Profile Image -->
     <ImageView
         android:id="@+id/profileImageView"
         android:layout_width="120dp"
@@ -18,7 +17,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Camera Button -->
     <ImageButton
         android:id="@+id/cameraButton"
         android:layout_width="48dp"
@@ -31,7 +29,6 @@
         app:layout_constraintEnd_toEndOf="@id/profileImageView"
         android:padding="8dp" />
 
-    <!-- First Name Label -->
     <TextView
         android:id="@+id/firstNameLabel"
         android:layout_width="wrap_content"
@@ -44,7 +41,6 @@
         app:layout_constraintTop_toBottomOf="@id/profileImageView"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- First Name EditText -->
     <EditText
         android:id="@+id/firstNameEditText"
         android:layout_width="0dp"
@@ -55,7 +51,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Last Name Label -->
     <TextView
         android:id="@+id/lastNameLabel"
         android:layout_width="wrap_content"
@@ -68,7 +63,6 @@
         app:layout_constraintTop_toBottomOf="@id/firstNameEditText"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Last Name EditText -->
     <EditText
         android:id="@+id/lastNameEditText"
         android:layout_width="0dp"
@@ -79,7 +73,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Email Label -->
     <TextView
         android:id="@+id/emailLabel"
         android:layout_width="wrap_content"
@@ -92,7 +85,6 @@
         app:layout_constraintTop_toBottomOf="@id/lastNameEditText"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Email EditText -->
     <EditText
         android:id="@+id/emailEditText"
         android:layout_width="0dp"
@@ -105,7 +97,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Password Label -->
     <TextView
         android:id="@+id/passwordLabel"
         android:layout_width="wrap_content"
@@ -118,7 +109,6 @@
         app:layout_constraintTop_toBottomOf="@id/emailEditText"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Password EditText -->
     <EditText
         android:id="@+id/passwordEditText"
         android:layout_width="0dp"
@@ -131,7 +121,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Confirm Password Label -->
     <TextView
         android:id="@+id/confirmPasswordLabel"
         android:layout_width="wrap_content"
@@ -144,7 +133,6 @@
         app:layout_constraintTop_toBottomOf="@id/passwordEditText"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Confirm Password EditText -->
     <EditText
         android:id="@+id/confirmPasswordEditText"
         android:layout_width="0dp"
@@ -157,7 +145,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Register Button -->
     <Button
         android:id="@+id/registerButton"
         android:layout_width="0dp"
@@ -170,7 +157,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Already Have Account Link -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/registerButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+
     <TextView
         android:id="@+id/alreadyHaveAccountLink"
         android:layout_width="wrap_content"
@@ -179,7 +176,7 @@
         android:textColor="#2196F3"
         android:textSize="14sp"
         android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/registerButton"
+        app:layout_constraintTop_toBottomOf="@id/progressBar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

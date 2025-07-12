@@ -6,32 +6,6 @@
     android:layout_height="match_parent"
     android:padding="24dp">
 
-    <!-- Profile Image -->
-    <ImageView
-        android:id="@+id/profileImageView"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:contentDescription="Profile picture"
-        android:scaleType="centerCrop"
-        android:src="@drawable/profile_placeholder"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="48dp"
-        android:layout_marginStart="128dp" />
-
-    <!-- Camera Button -->
-    <ImageButton
-        android:id="@+id/cameraButton"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:background="@android:color/transparent"
-        android:contentDescription="Take profile picture"
-        android:src="@drawable/ic_camera"
-        app:tint="#6200EE"
-        app:layout_constraintBottom_toBottomOf="@id/profileImageView"
-        app:layout_constraintEnd_toEndOf="@id/profileImageView"
-        android:padding="8dp" />
-
     <!-- Email Label -->
     <TextView
         android:id="@+id/emailLabel"
@@ -40,9 +14,9 @@
         android:text="Email Address"
         android:textStyle="bold"
         android:textSize="14sp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="48dp"
         android:layout_marginBottom="4dp"
-        app:layout_constraintTop_toBottomOf="@id/profileImageView"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <!-- Email EditText -->
@@ -113,5 +87,15 @@
         app:layout_constraintTop_toBottomOf="@id/loginButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/loginButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

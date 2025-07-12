@@ -1,112 +1,77 @@
 package com.example.studyflow.auth
 
-import AuthViewModel
 import android.os.Bundle
-import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
-import androidx.navigation.Navigation
-import com.example.studyflow.R
-
+import androidx.navigation.fragment.findNavController
+import com.example.studyflow.databinding.FragmentSignUpBinding
 
 class SignUpFragment : Fragment() {
 
-    private val viewModel: AuthViewModel by viewModels()
+    private var _binding: FragmentSignUpBinding? = null
+    private val binding get() = _binding!!
 
-    private lateinit var profileImageView: ImageView
-    private lateinit var cameraButton: ImageButton
-    private lateinit var firstNameEditText: EditText
-    private lateinit var lastNameEditText: EditText
-    private lateinit var emailEditText: EditText
-    private lateinit var passwordEditText: EditText
-    private lateinit var confirmPasswordEditText: EditText
-    private lateinit var registerButton: Button
-    private lateinit var alreadyHaveAccountLink: TextView
+    private val viewModel: AuthViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_sign_up, container, false)
+    ): View {
+        _binding = FragmentSignUpBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        profileImageView = view.findViewById(R.id.profileImageView)
-        cameraButton = view.findViewById(R.id.cameraButton)
-        firstNameEditText = view.findViewById(R.id.firstNameEditText)
-        lastNameEditText = view.findViewById(R.id.lastNameEditText)
-        emailEditText = view.findViewById(R.id.emailEditText)
-        passwordEditText = view.findViewById(R.id.passwordEditText)
-        confirmPasswordEditText = view.findViewById(R.id.confirmPasswordEditText)
-        registerButton = view.findViewById(R.id.registerButton)
-        alreadyHaveAccountLink = view.findViewById(R.id.alreadyHaveAccountLink)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        cameraButton.setOnClickListener {
-            Toast.makeText(requireContext(), "Implement camera or gallery selection", Toast.LENGTH_SHORT).show()
-            // TODO: הוסף קוד לפתיחת מצלמה או גלריה
-        }
+        binding.registerButton.setOnClickListener {
+            val email = binding.emailEditText.text.toString().trim()
+            val password = binding.passwordEditText.text.toString()
+            val confirmPassword = binding.confirmPasswordEditText.text.toString()
 
-        registerButton.setOnClickListener {
-            val firstName = firstNameEditText.text.toString().trim()
-            val lastName = lastNameEditText.text.toString().trim()
-            val email = emailEditText.text.toString().trim()
-            val password = passwordEditText.text.toString()
-            val confirmPassword = confirmPasswordEditText.text.toString()
-
-            if (firstName.isEmpty()) {
-                firstNameEditText.error = "Please enter your first name"
+            if (email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+                Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            if (lastName.isEmpty()) {
-                lastNameEditText.error = "Please enter your last name"
-                return@setOnClickListener
-            }
-            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                emailEditText.error = "Please enter a valid email"
-                return@setOnClickListener
-            }
-            if (password.length < 6) {
-                passwordEditText.error = "Password must be at least 6 characters"
-                return@setOnClickListener
-            }
+
             if (password != confirmPassword) {
-                confirmPasswordEditText.error = "Passwords do not match"
+                Toast.makeText(requireContext(), "Passwords do not match", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            registerButton.isEnabled = false
-
-            val form = RegisterForm(firstName, lastName, email, password)
-            viewModel.register(form) {
-                registerButton.isEnabled = true
-                // ניווט חזרה למסך ההתחברות אחרי הרשמה מוצלחת
-                Navigation.findNavController(view).navigate(R.id.action_signUpFragment_to_loginFragment)
+            viewModel.signUp(email, password) {
+                Toast.makeText(requireContext(), "Registration successful!", Toast.LENGTH_SHORT).show()
+                findNavController().navigate(SignUpFragmentDirections.actionSignUpFragmentToLoginFragment())
             }
         }
 
-        alreadyHaveAccountLink.setOnClickListener {
-            Navigation.findNavController(it).navigate(R.id.action_signUpFragment_to_loginFragment)
+        binding.alreadyHaveAccountLink.setOnClickListener {
+            findNavController().navigate(SignUpFragmentDirections.actionSignUpFragmentToLoginFragment())
         }
 
-        // התבוננות בטעינה ושגיאות
-        viewModel.loadingState.observe(viewLifecycleOwner, Observer { loadingState ->
-            registerButton.isEnabled = (loadingState != LoadingState.Loading)
-        })
+        observeViewModel()
+    }
 
-        viewModel.exceptionsState.observe(viewLifecycleOwner, Observer { exception ->
-            exception?.let {
-                Toast.makeText(requireContext(), "Error: ${it.message}", Toast.LENGTH_LONG).show()
+    private fun observeViewModel() {
+        viewModel.errorMessage.observe(viewLifecycleOwner) { error ->
+            error?.let {
+                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+                viewModel.clearError()
             }
-        })
+        }
 
-        return view
+        viewModel.loading.observe(viewLifecycleOwner) { isLoading ->
+            binding.registerButton.isEnabled = !isLoading
+            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

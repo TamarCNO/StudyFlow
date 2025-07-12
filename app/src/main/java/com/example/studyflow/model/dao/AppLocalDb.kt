@@ -7,11 +7,10 @@ import com.example.studyflow.base.MyApplication
 import com.example.studyflow.model.PostEntity
 import com.example.studyflow.model.Session
 
-@Database(entities = [Session::class, PostEntity::class], version = 5)
+@Database(entities = [Session::class, PostEntity::class], version = 6)
 abstract class AppLocalDbRepository : RoomDatabase() {
     abstract fun sessionDao(): SessionDao
     abstract fun postDao(): PostDao
-    abstract fun studentDao(): StudentDao
 }
 
 object AppLocalDb {

@@ -5,7 +5,6 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.studyflow.R
 import com.example.studyflow.model.Session
-import com.example.studyflow.model.Student
 
 class SessionsViewHolder(
     itemView: View,
@@ -17,18 +16,18 @@ class SessionsViewHolder(
     private val statusTextView: TextView = itemView.findViewById(R.id.session_row_Status)
     private val studentEmailTextView: TextView = itemView.findViewById(R.id.session_row_StudentEmail)
 
-    fun bind(session: Session, student: Student?, position: Int) {
+    fun bind(session: Session) {
         topicTextView.text = session.topic
         dateTextView.text = session.date.toString()
         statusTextView.text = session.status
-        studentEmailTextView.text = student?.email ?: "No email"
+        studentEmailTextView.text = session.studentEmail ?: "No email"
 
         itemView.setOnClickListener {
-            listener.onItemClick(position)
+            listener.onItemClick(session)
         }
     }
 
     interface OnItemClickListener {
-        fun onItemClick(position: Int)
+        fun onItemClick(session: Session)
     }
 }
