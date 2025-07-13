@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Geocoder
-import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
@@ -16,15 +15,12 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import com.example.studyflow.databinding.FragmentMapBinding
 import com.example.studyflow.model.PostEntity
-import com.example.studyflow.model.repository.PostRepository
 import com.example.studyflow.model.dao.AppLocalDb
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
 import com.squareup.picasso.Picasso
-import kotlinx.coroutines.launch
 import java.util.*
 
 class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
@@ -34,7 +30,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
     private lateinit var mMap: GoogleMap
     private val LOCATION_PERMISSION_REQUEST_CODE = 1
 
-    private lateinit var postRepository: PostRepository
+    private val postDao by lazy { AppLocalDb.db.postDao() }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,10 +41,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
         val mapFragment = childFragmentManager
             .findFragmentById(R.id.mapFragment) as SupportMapFragment
         mapFragment.getMapAsync(this)
-
-        // אתחול ה-Repository עם ה-Dao של Room
-        val postDao = AppLocalDb.db.postDao()
-        postRepository = PostRepository(postDao)
 
         binding.plusButton.setOnClickListener {
             mMap.animateCamera(CameraUpdateFactory.zoomIn())
@@ -69,9 +61,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
         checkLocationPermission()
         moveToCurrentLocation()
 
-        // טעינת פוסטים מה-DB באופן אסינכרוני
-        lifecycleScope.launch {
-            val posts = postRepository.getAllPosts()
+        // עכשיו מאזינים ל-LiveData מה-DAO
+        postDao.getAllPosts().observe(viewLifecycleOwner) { posts ->
             updateMapWithPosts(posts)
         }
 
@@ -124,6 +115,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
             .setPositiveButton("Close", null)
             .show()
     }
+
+    // שאר הקוד נשאר אותו דבר...
 
     private fun checkLocationPermission() {
         if (ContextCompat.checkSelfPermission(
@@ -193,10 +186,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
                 requireActivity().runOnUiThread { callback(null) }
             }
         }.start()
-    }
-
-    override fun onLocationChanged(location: Location) {
-        // לא בשימוש כרגע
     }
 
     override fun onDestroyView() {

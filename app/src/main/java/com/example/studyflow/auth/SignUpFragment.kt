@@ -8,7 +8,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import com.example.studyflow.databinding.FragmentSignUpBinding
+import com.example.studyflow.databinding.FragmentSignUpBinding // ודא שזהו הייבוא הנכון
 
 class SignUpFragment : Fragment() {
 
@@ -43,13 +43,16 @@ class SignUpFragment : Fragment() {
                 return@setOnClickListener
             }
 
+            // קריאה לפונקציית signUp ב-AuthViewModel עם קולבק להצלחה
             viewModel.signUp(email, password) {
                 Toast.makeText(requireContext(), "Registration successful!", Toast.LENGTH_SHORT).show()
+                // ניווט חזרה למסך ההתחברות לאחר הרשמה מוצלחת
                 findNavController().navigate(SignUpFragmentDirections.actionSignUpFragmentToLoginFragment())
             }
         }
 
         binding.alreadyHaveAccountLink.setOnClickListener {
+            // ניווט למסך ההתחברות אם למשתמש כבר יש חשבון
             findNavController().navigate(SignUpFragmentDirections.actionSignUpFragmentToLoginFragment())
         }
 
@@ -57,21 +60,30 @@ class SignUpFragment : Fragment() {
     }
 
     private fun observeViewModel() {
+        // צפייה בהודעות שגיאה מה-ViewModel
         viewModel.errorMessage.observe(viewLifecycleOwner) { error ->
             error?.let {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
-                viewModel.clearError()
+                viewModel.clearError() // ניקוי השגיאה לאחר שהוצגה
             }
         }
 
+        // צפייה במצב הטעינה מה-ViewModel
         viewModel.loading.observe(viewLifecycleOwner) { isLoading ->
-            binding.registerButton.isEnabled = !isLoading
-            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+            binding.registerButton.isEnabled = !isLoading // הפוך כפתור לא זמין בזמן טעינה
+            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE // הצג/הסתר פס התקדמות
+            // ייתכן שתרצה גם להשבית את שדות הטקסט בזמן טעינה:
+            binding.emailEditText.isEnabled = !isLoading
+            binding.passwordEditText.isEnabled = !isLoading
+            binding.confirmPasswordEditText.isEnabled = !isLoading
+            binding.alreadyHaveAccountLink.isEnabled = !isLoading
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
+        _binding = null // ניקוי ה-binding כדי למנוע דליפות זיכרון
+        // ניתן גם לנקות שגיאות כאן, למקרה שהמשתמש יוצא מהמסך לפני שהשגיאה מוצגת
+        viewModel.clearError()
     }
 }

@@ -10,80 +10,73 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.squareup.picasso.Picasso
+import androidx.fragment.app.viewModels // Import for viewModels delegate
+import com.example.studyflow.auth.AuthViewModel // Import your AuthViewModel
+import com.google.firebase.auth.FirebaseUser // Keep this import for the user object
 
 class ProfileFragment : Fragment() {
 
     private lateinit var profileImageView: ImageView
-    private lateinit var textFirstName: TextView
-    private lateinit var textLastName: TextView
+    private lateinit var textDisplayName: TextView // Changed to display name directly
     private lateinit var textEmail: TextView
     private lateinit var buttonSessions: Button
     private lateinit var buttonEditProfile: Button
     private lateinit var buttonLogout: Button
 
-    private val auth: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
+    // Use viewModels delegate to get AuthViewModel instance
+    private val authViewModel: AuthViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_profile, container, false)
-    }
+    ): View? = inflater.inflate(R.layout.fragment_profile, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         profileImageView = view.findViewById(R.id.profileImageView)
-        textFirstName = view.findViewById(R.id.textFirstName)
-        textLastName = view.findViewById(R.id.textLastName)
+        textDisplayName = view.findViewById(R.id.textDisplayName) // Link to new TextView in layout
         textEmail = view.findViewById(R.id.textEmail)
         buttonSessions = view.findViewById(R.id.buttonSessions)
         buttonEditProfile = view.findViewById(R.id.buttonEditProfile)
         buttonLogout = view.findViewById(R.id.buttonLogout)
 
-        loadUserInfo()
+        // Observe the user LiveData from AuthViewModel
+        authViewModel.user.observe(viewLifecycleOwner) { user ->
+            if (user != null) {
+                displayUserInfo(user)
+            } else {
+                // If user becomes null (e.g., after logout from another part of the app), navigate to login
+                Toast.makeText(requireContext(), "User not logged in", Toast.LENGTH_SHORT).show()
+                findNavController().navigate(R.id.action_profileFragment_to_loginFragment)
+            }
+        }
 
         buttonSessions.setOnClickListener {
             findNavController().navigate(R.id.action_profileFragment_to_sessionsFragmentList)
         }
 
         buttonEditProfile.setOnClickListener {
+            // Navigate to the edit profile screen
             findNavController().navigate(R.id.action_profileFragment_to_editProfileFragment)
         }
 
         buttonLogout.setOnClickListener {
-            auth.signOut()
+            authViewModel.logout() // Use ViewModel's logout function
+            Toast.makeText(requireContext(), "Logged out successfully", Toast.LENGTH_SHORT).show()
             findNavController().navigate(R.id.action_profileFragment_to_loginFragment)
         }
     }
 
-    private fun loadUserInfo() {
-        val user: FirebaseUser? = auth.currentUser
-        if (user == null) {
-            Toast.makeText(requireContext(), "User not logged in", Toast.LENGTH_SHORT).show()
-            findNavController().navigate(R.id.action_profileFragment_to_loginFragment)
-            return
-        }
-
-        // מציגים את המייל
+    /**
+     * Displays the current user's information on the profile screen.
+     */
+    private fun displayUserInfo(user: FirebaseUser) {
         textEmail.text = user.email ?: "No email"
+        // Display the full displayName provided by Firebase Authentication
+        textDisplayName.text = user.displayName ?: "No Name"
 
-        // מציגים את השם מלא אם קיים
-        val displayName = user.displayName ?: ""
-        if (displayName.contains(" ")) {
-            val parts = displayName.split(" ")
-            textFirstName.text = parts.getOrNull(0) ?: ""
-            textLastName.text = parts.getOrNull(1) ?: ""
-        } else {
-            // אם אין שם מלא מפוצל, מציגים הכל בשם פרטי
-            textFirstName.text = displayName
-            textLastName.text = ""
-        }
-
-        // טוענים את תמונת הפרופיל אם יש
         val photoUrl = user.photoUrl
         if (photoUrl != null) {
             Picasso.get()
@@ -92,7 +85,10 @@ class ProfileFragment : Fragment() {
                 .error(R.drawable.profile_placeholder)
                 .into(profileImageView)
         } else {
-            profileImageView.setImageResource(R.drawable.profile_placeholder)
+            profileImageView.setImageResource(R.drawable.profile_placeholder) // Default placeholder if no photo URL
         }
+    }
+    override fun onDestroyView() {
+        super.onDestroyView()
     }
 }

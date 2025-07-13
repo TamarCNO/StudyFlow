@@ -15,6 +15,7 @@
             android:id="@+id/action_loginFragment_to_signUpFragment"
             app:destination="@id/signUpFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/signUpFragment"
         android:name="com.example.studyflow.auth.SignUpFragment"
@@ -23,53 +24,58 @@
             android:id="@+id/action_signUpFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/sessionsFragmentList"
         android:name="com.example.studyflow.SessionsFragmentList"
         android:label="SessionsFragmentList" >
         <action
-            android:id="@+id/action_sessionsFragmentList_to_addStudySessionFragment"
-            app:destination="@id/addStudySessionFragment" />
+            android:id="@+id/action_sessionsFragmentList_to_addSessionFragment"
+            app:destination="@id/addSessionFragment" />
         <action
             android:id="@+id/action_sessionsFragmentList_to_profileFragment"
             app:destination="@id/profileFragment" />
     </fragment>
+
     <fragment
-        android:id="@+id/addStudySessionFragment"
+        android:id="@+id/addSessionFragment"
         android:name="com.example.studyflow.AddSessionFragment"
-        android:label="AddStudySessionFragment" >
+        android:label="AddSessionFragment" >
         <action
-            android:id="@+id/action_addStudySessionFragment_to_detailsFragment"
+            android:id="@+id/action_addSessionFragment_to_detailsFragment"
             app:destination="@id/detailsFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/detailsFragment"
         android:name="com.example.studyflow.DetailsFragment"
         android:label="DetailsFragment" >
+
         <argument
             android:name="sessionId"
             app:argType="string" />
+        <argument
+            android:name="materialImageUrl"
+            app:argType="string"
+            android:defaultValue="" />
+
         <action
             android:id="@+id/action_detailsFragment_to_editSessionFragment"
             app:destination="@id/editSessionFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/editSessionFragment"
         android:name="com.example.studyflow.EditSessionFragment"
         android:label="EditSessionFragment" >
-         <argument
-            android:name="topic"
-            app:argType="string" />
         <argument
-            android:name="date"
+            android:name="sessionId"
             app:argType="string" />
-        <argument
-            android:name="time"
-            app:argType="string" />
-    <action
-        android:id="@+id/action_editSessionFragment_to_detailsFragment"
-        app:destination="@id/detailsFragment" />
-</fragment>
+        <action
+            android:id="@+id/action_editSessionFragment_to_detailsFragment"
+            app:destination="@id/detailsFragment" />
+    </fragment>
+
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.example.studyflow.ProfileFragment"
@@ -84,8 +90,14 @@
             android:id="@+id/action_profileFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/editProfileFragment"
         android:name="com.example.studyflow.EditProfileFragment"
-        android:label="EditProfileFragment" />
+        android:label="EditProfileFragment" >
+        <action
+            android:id="@+id/action_editProfileFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
+    </fragment>
+
 </navigation>

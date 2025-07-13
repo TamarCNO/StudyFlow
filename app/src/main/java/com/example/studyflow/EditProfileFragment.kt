@@ -1,16 +1,21 @@
 package com.example.studyflow
 
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.Toast
+import android.widget.*
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import com.example.studyflow.model.CloudinaryModel
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.auth.ktx.userProfileChangeRequest
+import com.squareup.picasso.Picasso
 
 class EditProfileFragment : Fragment() {
 
@@ -21,8 +26,17 @@ class EditProfileFragment : Fragment() {
     private lateinit var inputEmail: EditText
     private lateinit var buttonSave: Button
     private lateinit var buttonCancel: Button
+    private lateinit var progressBar: ProgressBar
 
     private val auth = FirebaseAuth.getInstance()
+
+    private var selectedImageBitmap: Bitmap? = null
+    private var selectedImageUri: Uri? = null
+
+    private lateinit var pickImageLauncher: ActivityResultLauncher<String>
+    private lateinit var takePictureLauncher: ActivityResultLauncher<Void?>
+
+    private val cloudinaryModel = CloudinaryModel()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -41,12 +55,28 @@ class EditProfileFragment : Fragment() {
         inputEmail = view.findViewById(R.id.inputEmail)
         buttonSave = view.findViewById(R.id.buttonSave)
         buttonCancel = view.findViewById(R.id.buttonCancel)
+        progressBar = view.findViewById(R.id.progressBar)
 
         loadUserData()
 
+        pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+            uri?.let {
+                selectedImageUri = it
+                selectedImageBitmap = null
+                Picasso.get().load(it).into(profileImageView)
+            }
+        }
+
+        takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap: Bitmap? ->
+            bitmap?.let {
+                selectedImageBitmap = it
+                selectedImageUri = null
+                profileImageView.setImageBitmap(it)
+            }
+        }
+
         cameraIcon.setOnClickListener {
-            Toast.makeText(requireContext(), "Change profile photo - to implement", Toast.LENGTH_SHORT).show()
-            // כאן אפשר להוסיף פתיחת גלריה או מצלמה
+            showImageSourceOptions()
         }
 
         buttonSave.setOnClickListener {
@@ -59,12 +89,25 @@ class EditProfileFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            updateUserProfile(firstName, lastName, email)
+            uploadProfileImageThenUpdate(firstName, lastName, email)
         }
 
         buttonCancel.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
+    }
+
+    private fun showImageSourceOptions() {
+        val options = arrayOf("Take Photo", "Choose from Gallery")
+        val builder = android.app.AlertDialog.Builder(requireContext())
+        builder.setTitle("Select Image Source")
+        builder.setItems(options) { _, which ->
+            when (which) {
+                0 -> takePictureLauncher.launch(null)
+                1 -> pickImageLauncher.launch("image/*")
+            }
+        }
+        builder.show()
     }
 
     private fun loadUserData() {
@@ -76,7 +119,6 @@ class EditProfileFragment : Fragment() {
 
         inputEmail.setText(user.email ?: "")
 
-        // מפצלים את ה-displayName לשם פרטי ושם משפחה
         val displayName = user.displayName ?: ""
         if (displayName.contains(" ")) {
             val parts = displayName.split(" ")
@@ -87,48 +129,107 @@ class EditProfileFragment : Fragment() {
             inputLastName.setText("")
         }
 
-        // אפשר להוסיף כאן טעינת תמונת פרופיל אם רוצים
+        user.photoUrl?.let {
+            Picasso.get().load(it).into(profileImageView)
+        }
     }
 
-    private fun updateUserProfile(firstName: String, lastName: String, email: String) {
+    private fun uriToBitmap(uri: Uri): Bitmap? {
+        return try {
+            val source = ImageDecoder.createSource(requireContext().contentResolver, uri)
+            ImageDecoder.decodeBitmap(source)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    private fun uploadProfileImageThenUpdate(firstName: String, lastName: String, email: String) {
+        buttonSave.isEnabled = false
+        progressBar.visibility = View.VISIBLE
+
+        when {
+            selectedImageBitmap != null -> {
+                cloudinaryModel.uploadBitmap(selectedImageBitmap!!, { url ->
+                    updateUserProfile(firstName, lastName, email, url)
+                }, { errorMsg ->
+                    progressBar.visibility = View.GONE
+                    buttonSave.isEnabled = true
+                    Toast.makeText(requireContext(), "Failed to upload image: $errorMsg", Toast.LENGTH_LONG).show()
+                })
+            }
+            selectedImageUri != null -> {
+                val bitmap = uriToBitmap(selectedImageUri!!)
+                if (bitmap != null) {
+                    cloudinaryModel.uploadBitmap(bitmap, { url ->
+                        updateUserProfile(firstName, lastName, email, url)
+                    }, { errorMsg ->
+                        progressBar.visibility = View.GONE
+                        buttonSave.isEnabled = true
+                        Toast.makeText(requireContext(), "Failed to upload image: $errorMsg", Toast.LENGTH_LONG).show()
+                    })
+                } else {
+                    progressBar.visibility = View.GONE
+                    buttonSave.isEnabled = true
+                    Toast.makeText(requireContext(), "Failed to convert image", Toast.LENGTH_LONG).show()
+                }
+            }
+            else -> {
+                updateUserProfile(firstName, lastName, email, null)
+            }
+        }
+    }
+
+    private fun updateUserProfile(firstName: String, lastName: String, email: String, photoUrl: String?) {
         val user = auth.currentUser ?: run {
             Toast.makeText(requireContext(), "User not logged in", Toast.LENGTH_SHORT).show()
+            progressBar.visibility = View.GONE
+            buttonSave.isEnabled = true
             return
         }
 
-        // ראשית, מעדכנים את האימייל אם הוא שונה
-        if (email != user.email) {
+        val updateEmailTask = if (email != user.email) {
             user.updateEmail(email)
+        } else null
+
+        val updateProfile = {
+            val fullName = "$firstName $lastName".trim()
+            val profileUpdates = userProfileChangeRequest {
+                displayName = fullName
+                photoUri = photoUrl?.let { Uri.parse(it) }
+            }
+
+            user.updateProfile(profileUpdates)
                 .addOnCompleteListener { task ->
+                    progressBar.visibility = View.GONE
+                    buttonSave.isEnabled = true
                     if (task.isSuccessful) {
-                        // לאחר עדכון האימייל, נעדכן את שם המשתמש
-                        updateDisplayName(user, firstName, lastName)
+                        Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show()
+                        clearSelectedImage()
+                        findNavController().navigate(R.id.action_editProfileFragment_to_profileFragment)
                     } else {
-                        Toast.makeText(requireContext(), "Failed to update email: ${task.exception?.message}", Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireContext(), "Failed to update profile: ${task.exception?.message}", Toast.LENGTH_LONG).show()
                     }
                 }
+        }
+
+        if (updateEmailTask != null) {
+            updateEmailTask.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    updateProfile()
+                } else {
+                    progressBar.visibility = View.GONE
+                    buttonSave.isEnabled = true
+                    Toast.makeText(requireContext(), "Failed to update email: ${task.exception?.message}", Toast.LENGTH_LONG).show()
+                }
+            }
         } else {
-            // אם האימייל לא שונה, רק נעדכן את השם
-            updateDisplayName(user, firstName, lastName)
+            updateProfile()
         }
     }
 
-    private fun updateDisplayName(user: com.google.firebase.auth.FirebaseUser, firstName: String, lastName: String) {
-        val fullName = "$firstName $lastName".trim()
-
-        val profileUpdates = UserProfileChangeRequest.Builder()
-            .setDisplayName(fullName)
-            // כאן אפשר להוסיף גם setPhotoUri אם יש URL של תמונה
-            .build()
-
-        user.updateProfile(profileUpdates)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show()
-                    findNavController().popBackStack()
-                } else {
-                    Toast.makeText(requireContext(), "Failed to update profile: ${task.exception?.message}", Toast.LENGTH_LONG).show()
-                }
-            }
+    private fun clearSelectedImage() {
+        selectedImageBitmap = null
+        selectedImageUri = null
     }
 }

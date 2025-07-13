@@ -2,146 +2,79 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="24dp">
+    tools:context=".ProfileFragment">
 
-    <!-- Profile Image -->
     <ImageView
         android:id="@+id/profileImageView"
         android:layout_width="120dp"
         android:layout_height="120dp"
+        android:layout_marginTop="32dp"
         android:src="@drawable/profile_placeholder"
-        android:contentDescription="Profile picture"
-        android:scaleType="centerCrop"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/labelFirstName"
+        android:contentDescription="profile picture" />
+
+    <TextView
+        android:id="@+id/textDisplayName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="User Name"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/profileImageView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_goneMarginBottom="16dp" />
+        android:layout_marginTop="16dp"/>
 
-    <!-- Guideline for labels start -->
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guidelineLabels"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_begin="24dp" />
-
-    <!-- Guideline for values start -->
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guidelineValues"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_begin="140dp" />
-
-    <!-- First Name Label -->
-    <TextView
-        android:id="@+id/labelFirstName"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="First Name"
-        android:textStyle="bold"
-        android:textSize="14sp"
-        app:layout_constraintStart_toStartOf="@id/guidelineLabels"
-        app:layout_constraintEnd_toStartOf="@id/guidelineValues"
-        app:layout_constraintTop_toBottomOf="@id/profileImageView"
-        android:layout_marginTop="24dp" />
-
-    <!-- First Name Value -->
-    <TextView
-        android:id="@+id/textFirstName"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:textColor="#000000"
-        app:layout_constraintStart_toStartOf="@id/guidelineValues"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/labelFirstName" />
-
-    <!-- Last Name Label -->
-    <TextView
-        android:id="@+id/labelLastName"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Last Name"
-        android:textStyle="bold"
-        android:textSize="14sp"
-        app:layout_constraintStart_toStartOf="@id/guidelineLabels"
-        app:layout_constraintEnd_toStartOf="@id/guidelineValues"
-        app:layout_constraintTop_toBottomOf="@id/labelFirstName"
-        android:layout_marginTop="20dp" />
-
-    <!-- Last Name Value -->
-    <TextView
-        android:id="@+id/textLastName"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:textColor="#000000"
-        app:layout_constraintStart_toStartOf="@id/guidelineValues"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/labelLastName" />
-
-    <!-- Email Label -->
-    <TextView
-        android:id="@+id/labelEmail"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Email"
-        android:textStyle="bold"
-        android:textSize="14sp"
-        app:layout_constraintStart_toStartOf="@id/guidelineLabels"
-        app:layout_constraintEnd_toStartOf="@id/guidelineValues"
-        app:layout_constraintTop_toBottomOf="@id/labelLastName"
-        android:layout_marginTop="20dp" />
-
-    <!-- Email Value -->
     <TextView
         android:id="@+id/textEmail"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="user.email@example.com"
         android:textSize="16sp"
-        android:textColor="#000000"
-        app:layout_constraintStart_toStartOf="@id/guidelineValues"
+        app:layout_constraintTop_toBottomOf="@id/textDisplayName"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/labelEmail" />
-    <!-- Sessions Button -->
+        android:layout_marginTop="8dp"/>
+
     <Button
         android:id="@+id/buttonSessions"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Sessions List"
-        android:layout_marginTop="32dp"
-        app:layout_constraintTop_toBottomOf="@id/labelEmail"
+        android:text="My Sessions"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        app:layout_constraintBottom_toTopOf="@+id/buttonEditProfile"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/buttonEditProfile"
-        app:layout_constraintWidth_percent="0.45" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="16dp"/>
 
-    <!-- Edit Profile Button -->
     <Button
         android:id="@+id/buttonEditProfile"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Edit Profile"
-        android:layout_marginTop="32dp"
-        app:layout_constraintTop_toBottomOf="@id/labelEmail"
-        app:layout_constraintStart_toEndOf="@id/buttonSessions"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        app:layout_constraintBottom_toTopOf="@+id/buttonLogout"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintWidth_percent="0.45" />
+        android:layout_marginBottom="16dp"/>
 
-    <!-- Logout Button -->
     <Button
         android:id="@+id/buttonLogout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Logout"
-        android:layout_marginTop="24dp"
-        android:backgroundTint="@android:color/holo_red_light"
-        android:textColor="@android:color/white"
-        app:layout_constraintTop_toBottomOf="@id/buttonSessions"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="32dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
