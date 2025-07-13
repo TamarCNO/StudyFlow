@@ -18,7 +18,7 @@ class Model private constructor() {
 
         uploadImageToCloudinary(image, session.id,
             onSuccess = { imageUrl ->
-                val updatedSession = session.copy(imageUrl = imageUrl)
+                val updatedSession = session.copy(materialImageUrl = imageUrl)
                 callback(updatedSession)
             },
             onError = {

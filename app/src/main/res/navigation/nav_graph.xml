@@ -24,18 +24,22 @@
             android:id="@+id/action_signUpFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
     </fragment>
-
     <fragment
         android:id="@+id/sessionsFragmentList"
         android:name="com.example.studyflow.SessionsFragmentList"
         android:label="SessionsFragmentList" >
+
         <action
             android:id="@+id/action_sessionsFragmentList_to_addSessionFragment"
             app:destination="@id/addSessionFragment" />
         <action
             android:id="@+id/action_sessionsFragmentList_to_profileFragment"
             app:destination="@id/profileFragment" />
+        <action
+            android:id="@+id/action_sessionsFragmentList_to_detailsFragment"
+            app:destination="@id/detailsFragment" />
     </fragment>
+
 
     <fragment
         android:id="@+id/addSessionFragment"

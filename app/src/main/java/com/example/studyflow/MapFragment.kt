@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Geocoder
+import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
@@ -31,12 +32,15 @@ class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
     private val LOCATION_PERMISSION_REQUEST_CODE = 1
 
     private val postDao by lazy { AppLocalDb.db.postDao() }
+    private lateinit var locationManager: LocationManager
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentMapBinding.inflate(inflater, container, false)
+
+        locationManager = requireActivity().getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
         val mapFragment = childFragmentManager
             .findFragmentById(R.id.mapFragment) as SupportMapFragment
@@ -61,7 +65,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
         checkLocationPermission()
         moveToCurrentLocation()
 
-        // עכשיו מאזינים ל-LiveData מה-DAO
         postDao.getAllPosts().observe(viewLifecycleOwner) { posts ->
             updateMapWithPosts(posts)
         }
@@ -116,8 +119,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
             .show()
     }
 
-    // שאר הקוד נשאר אותו דבר...
-
     private fun checkLocationPermission() {
         if (ContextCompat.checkSelfPermission(
                 requireContext(),
@@ -125,6 +126,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
             ) == PackageManager.PERMISSION_GRANTED
         ) {
             enableMyLocation()
+            startLocationUpdates()
         } else {
             requestPermissions(
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
@@ -143,16 +145,29 @@ class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
         }
     }
 
-    private fun moveToCurrentLocation() {
-        val locationManager =
-            requireActivity().getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        val locationProvider = LocationManager.GPS_PROVIDER
+    private fun startLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            val lastKnownLocation = locationManager.getLastKnownLocation(locationProvider)
+            locationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,
+                5000L,      // מינימום זמן בין עדכונים (5 שניות)
+                10f,        // מינימום מרחק בין עדכונים (10 מטרים)
+                this        // LocationListener
+            )
+        }
+    }
+
+    private fun moveToCurrentLocation() {
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            val lastKnownLocation =
+                locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
             lastKnownLocation?.let {
                 val currentLatLng = LatLng(it.latitude, it.longitude)
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f))
@@ -168,6 +183,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
             grantResults[0] == PackageManager.PERMISSION_GRANTED
         ) {
             enableMyLocation()
+            startLocationUpdates()
         } else {
             Toast.makeText(requireContext(), "Location permission denied", Toast.LENGTH_SHORT).show()
         }
@@ -188,8 +204,19 @@ class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
         }.start()
     }
 
+    override fun onLocationChanged(location: Location) {
+        val latLng = LatLng(location.latitude, location.longitude)
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
+    }
+
+    // אפשר להשאיר את המתודות האלו ריקות או לממש במידת הצורך
+    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
+    override fun onProviderEnabled(provider: String) {}
+    override fun onProviderDisabled(provider: String) {}
+
     override fun onDestroyView() {
         super.onDestroyView()
+        locationManager.removeUpdates(this)
         _binding = null
     }
 }

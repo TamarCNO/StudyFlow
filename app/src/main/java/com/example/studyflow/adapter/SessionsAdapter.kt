@@ -7,9 +7,13 @@ import com.example.studyflow.R
 import com.example.studyflow.model.Session
 
 class SessionsAdapter(
-    private val sessions: List<Session>,
+    private var sessions: List<Session>,
     private val listener: SessionsViewHolder.OnItemClickListener
 ) : RecyclerView.Adapter<SessionsViewHolder>() {
+
+    fun set(newSessions: List<Session>) {
+        sessions = newSessions
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SessionsViewHolder {
         val view = LayoutInflater.from(parent.context)
