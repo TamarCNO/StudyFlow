@@ -1,16 +1,5 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/sessionsFragmentList"
-        android:icon="@drawable/lists"
-        android:title="Sessions" />
-
-    <item
-        android:id="@+id/addStudentFragment"
-        android:icon="@android:drawable/ic_input_add"
-        android:title="Add" />
-
-    <item
         android:id="@+id/profileFragment"
-        android:icon="@android:drawable/ic_menu_myplaces"
         android:title="Profile" />
 </menu>
