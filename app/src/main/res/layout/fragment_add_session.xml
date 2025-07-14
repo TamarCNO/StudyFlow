@@ -7,187 +7,223 @@
     android:layout_height="match_parent"
     android:padding="16dp">
 
-    <!-- Session Topic Label -->
-    <TextView
-        android:id="@+id/sessionTopicLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Session Topic"
-        android:textSize="16sp"
-        android:textStyle="bold"
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
-
-    <!-- Session Topic EditText -->
-    <EditText
-        android:id="@+id/sessionTopicEditText"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:hint="Enter topic"
-        android:minHeight="48dp"
-        android:imeOptions="actionNext"
-        android:inputType="text"
-        app:layout_constraintTop_toBottomOf="@id/sessionTopicLabel"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <!-- Date Label -->
-    <TextView
-        android:id="@+id/sessionDateLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Date"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/sessionTopicEditText"
-        app:layout_constraintStart_toStartOf="parent"/>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="64dp">
 
-    <!-- Date EditText -->
-    <EditText
-        android:id="@+id/sessionDateEditText"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:hint="Enter date"
-        android:focusable="false"
-        android:clickable="true"
-        android:minHeight="48dp"
-        app:layout_constraintTop_toBottomOf="@id/sessionDateLabel"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+            <TextView
+                android:id="@+id/sessionTopicLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Session Topic"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"/>
 
-    <!-- Time Label -->
-    <TextView
-        android:id="@+id/sessionTimeLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Time"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/sessionDateEditText"
-        app:layout_constraintStart_toStartOf="parent"/>
+            <EditText
+                android:id="@+id/sessionTopicEditText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:hint="Enter topic"
+                android:minHeight="48dp"
+                android:imeOptions="actionNext"
+                android:inputType="text"
+                app:layout_constraintTop_toBottomOf="@id/sessionTopicLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Time EditText -->
-    <EditText
-        android:id="@+id/sessionTimeEditText"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:hint="Enter time"
-        android:focusable="false"
-        android:clickable="true"
-        android:minHeight="48dp"
-        app:layout_constraintTop_toBottomOf="@id/sessionTimeLabel"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-    <!-- Status Label -->
-    <TextView
-        android:id="@+id/sessionStatusLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Status"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/sessionTimeEditText"
-        app:layout_constraintStart_toStartOf="parent"/>
+            <TextView
+                android:id="@+id/sessionDateLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Date"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"
+                app:layout_constraintTop_toBottomOf="@id/sessionTopicEditText"
+                app:layout_constraintStart_toStartOf="parent"/>
 
-    <!-- Status EditText -->
-    <EditText
-        android:id="@+id/sessionStatusEditText"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:hint="Enter status"
-        android:minHeight="48dp"
-        app:layout_constraintTop_toBottomOf="@id/sessionStatusLabel"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+            <EditText
+                android:id="@+id/sessionDateEditText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:hint="Enter date"
+                android:focusable="false"
+                android:clickable="true"
+                android:minHeight="48dp"
+                app:layout_constraintTop_toBottomOf="@id/sessionDateLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Student Email Label -->
-    <TextView
-        android:id="@+id/sessionStudentEmailLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Student Email"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/sessionStatusEditText"
-        app:layout_constraintStart_toStartOf="parent"/>
-    <!-- Student Email EditText -->
-    <EditText
-        android:id="@+id/sessionStudentEmailEditText"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:hint="Enter student email"
-        android:inputType="textEmailAddress"
-        android:minHeight="48dp"
-        app:layout_constraintTop_toBottomOf="@id/sessionStudentEmailLabel"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+            <TextView
+                android:id="@+id/sessionTimeLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Time"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"
+                app:layout_constraintTop_toBottomOf="@id/sessionDateEditText"
+                app:layout_constraintStart_toStartOf="parent"/>
 
-    <!-- Materials Label -->
-    <TextView
-        android:id="@+id/materialsLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Materials"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:layout_marginTop="24dp"
-        app:layout_constraintTop_toBottomOf="@id/sessionStudentEmailEditText"
-        app:layout_constraintStart_toStartOf="parent"/>
+            <EditText
+                android:id="@+id/sessionTimeEditText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:hint="Enter time"
+                android:focusable="false"
+                android:clickable="true"
+                android:minHeight="48dp"
+                app:layout_constraintTop_toBottomOf="@id/sessionTimeLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Session Material Image -->
-    <ImageView
-        android:id="@+id/sessionImageView"
-        android:layout_width="0dp"
-        android:layout_height="200dp"
-        android:layout_marginTop="8dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/materials"
-        android:contentDescription="Session material image"
-        android:background="#DDDDDD"
-        app:layout_constraintTop_toBottomOf="@id/materialsLabel"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+            <TextView
+                android:id="@+id/sessionStatusLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Status"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"
+                app:layout_constraintTop_toBottomOf="@id/sessionTimeEditText"
+                app:layout_constraintStart_toStartOf="parent"/>
 
-    <!-- Camera Icon Button to Edit Material Image -->
-    <ImageButton
-        android:id="@+id/editMaterialImageButton"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:src="@drawable/ic_camera"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Edit material image"
-        app:layout_constraintBottom_toBottomOf="@id/sessionImageView"
-        app:layout_constraintEnd_toEndOf="@id/sessionImageView"
-        android:layout_margin="8dp"/>
+            <EditText
+                android:id="@+id/statusEditText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:hint="Enter status"
+                android:minHeight="48dp"
+                app:layout_constraintTop_toBottomOf="@id/sessionStatusLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Save Button only -->
-    <Button
-        android:id="@+id/saveSessionButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Save"
-        app:layout_constraintTop_toBottomOf="@id/sessionImageView"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+            <TextView
+                android:id="@+id/sessionStudentEmailLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Student Email"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"
+                app:layout_constraintTop_toBottomOf="@id/statusEditText"
+                app:layout_constraintStart_toStartOf="parent"/>
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/saveSessionButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
+            <EditText
+                android:id="@+id/sessionStudentEmailEditText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:hint="Enter student email"
+                android:inputType="textEmailAddress"
+                android:minHeight="48dp"
+                app:layout_constraintTop_toBottomOf="@id/sessionStudentEmailLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
 
+            <TextView
+                android:id="@+id/sessionLocationLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Location Address"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"
+                app:layout_constraintTop_toBottomOf="@id/sessionStudentEmailEditText"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <EditText
+                android:id="@+id/sessionLocationEditText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:hint="Enter location address"
+                android:inputType="textPostalAddress"
+                android:minHeight="48dp"
+                app:layout_constraintTop_toBottomOf="@id/sessionLocationLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+            <TextView
+                android:id="@+id/materialsLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Materials"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginTop="24dp"
+                app:layout_constraintTop_toBottomOf="@id/sessionLocationEditText"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <ImageView
+                android:id="@+id/sessionImageView"
+                android:layout_width="0dp"
+                android:layout_height="120dp"
+                android:layout_marginTop="8dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/materials"
+                android:contentDescription="Session material image"
+                android:background="#DDDDDD"
+                app:layout_constraintTop_toBottomOf="@id/materialsLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+            <ImageButton
+                android:id="@+id/editMaterialImageButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_camera"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Edit material image"
+                app:layout_constraintBottom_toBottomOf="@id/sessionImageView"
+                app:layout_constraintEnd_toEndOf="@id/sessionImageView"
+                android:layout_margin="8dp"/>
+
+            <TextView
+                android:id="@+id/imageStorageLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Image Storage Option:"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"
+                app:layout_constraintTop_toBottomOf="@id/sessionImageView"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <Button
+                android:id="@+id/saveSessionButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Save Session"
+                app:layout_constraintTop_toBottomOf="@id/imageStorageLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/saveSessionButton"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="16dp"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

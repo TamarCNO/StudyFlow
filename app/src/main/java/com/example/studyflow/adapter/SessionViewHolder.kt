@@ -1,29 +1,33 @@
 package com.example.studyflow.adapter
 
-import android.view.View
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.studyflow.R
+import com.example.studyflow.databinding.FragmentSessionRowBinding
 import com.example.studyflow.model.Session
 
 class SessionsViewHolder(
-    itemView: View,
-    private val listener: OnItemClickListener
-) : RecyclerView.ViewHolder(itemView) {
+    private val binding: FragmentSessionRowBinding,
+    private val listener: OnItemClickListener?
+) : RecyclerView.ViewHolder(binding.root) {
 
-    private val topicTextView: TextView = itemView.findViewById(R.id.session_row_Topic)
-    private val dateTextView: TextView = itemView.findViewById(R.id.session_row_Date)
-    private val statusTextView: TextView = itemView.findViewById(R.id.session_row_Status)
-    private val studentEmailTextView: TextView = itemView.findViewById(R.id.session_row_StudentEmail)
+    private var session: Session? = null
 
-    fun bind(session: Session) {
-        topicTextView.text = session.topic
-        dateTextView.text = session.date.toString()
-        statusTextView.text = session.status
-        studentEmailTextView.text = session.studentEmail ?: "No email"
-
+    init {
         itemView.setOnClickListener {
-            listener.onItemClick(session)
+            session?.let {
+                listener?.onItemClick(it)
+            }
+        }
+    }
+
+    fun bind(session: Session?) {
+        this.session = session
+        session?.let {
+            binding.sessionRowTopic.text = it.topic
+            binding.sessionRowDate.text = "Date: ${it.date}"
+            binding.sessionRowStatus.text = "Status: ${it.status}"
+            binding.sessionRowStudentEmail.text = "Student: ${
+                if (it.studentEmail.isNullOrEmpty()) "N/A" else it.studentEmail
+            }"
         }
     }
 

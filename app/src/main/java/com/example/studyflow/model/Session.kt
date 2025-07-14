@@ -6,12 +6,13 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "sessions")
 data class Session(
     @PrimaryKey val id: String,
-    val topic: String,
-    val date: String,
-    val time: String,
-    val status: String,
-    val studentEmail: String,
-    val materialImageUrl: String? = null
+    val topic: String?,
+    val date: String?,
+    val time: String?,
+    val status: String?,
+    val studentEmail: String?,
+    val materialImageUrl: String? = null,
+    val locationAddress: String? = null
 ) {
     companion object {
         private const val ID_KEY = "id"
@@ -21,6 +22,7 @@ data class Session(
         private const val STATUS_KEY = "status"
         private const val STUDENT_EMAIL_KEY = "studentEmail"
         private const val MATERIAL_IMAGE_URL_KEY = "materialImageUrl"
+        private const val LOCATION_ADDRESS_KEY = "locationAddress"
 
         fun fromJSON(json: Map<String, Any>): Session = with(json) {
             val id = this[ID_KEY] as? String ?: ""
@@ -30,6 +32,7 @@ data class Session(
             val status = this[STATUS_KEY] as? String ?: ""
             val studentEmail = this[STUDENT_EMAIL_KEY] as? String ?: ""
             val materialImageUrl = this[MATERIAL_IMAGE_URL_KEY] as? String
+            val locationAddress = this[LOCATION_ADDRESS_KEY] as? String
 
             return Session(
                 id = id,
@@ -38,7 +41,8 @@ data class Session(
                 time = time,
                 status = status,
                 studentEmail = studentEmail,
-                materialImageUrl = materialImageUrl
+                materialImageUrl = materialImageUrl,
+                locationAddress = locationAddress
             )
         }
     }
@@ -51,6 +55,7 @@ data class Session(
             TIME_KEY to time,
             STATUS_KEY to status,
             STUDENT_EMAIL_KEY to studentEmail,
-            MATERIAL_IMAGE_URL_KEY to materialImageUrl
+            MATERIAL_IMAGE_URL_KEY to materialImageUrl,
+           LOCATION_ADDRESS_KEY to locationAddress
         )
 }

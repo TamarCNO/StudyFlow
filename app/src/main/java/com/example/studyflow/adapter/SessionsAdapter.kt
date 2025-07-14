@@ -3,28 +3,26 @@ package com.example.studyflow.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.studyflow.R
+import com.example.studyflow.databinding.FragmentSessionRowBinding
 import com.example.studyflow.model.Session
 
-class SessionsAdapter(
-    private var sessions: List<Session>,
-    private val listener: SessionsViewHolder.OnItemClickListener
-) : RecyclerView.Adapter<SessionsViewHolder>() {
+class SessionsAdapter(private var sessions: List<Session>?) : RecyclerView.Adapter<SessionsViewHolder>() {
 
-    fun set(newSessions: List<Session>) {
-        sessions = newSessions
+    var listener: SessionsViewHolder.OnItemClickListener? = null
+
+    fun set(sessions: List<Session>?) {
+        this.sessions = sessions
     }
 
+    override fun getItemCount(): Int = sessions?.size ?: 0
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SessionsViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.fragment_session_row, parent, false)
-        return SessionsViewHolder(view, listener)
+        val inflater = LayoutInflater.from(parent.context)
+        val binding = FragmentSessionRowBinding.inflate(inflater, parent, false)
+        return SessionsViewHolder(binding, listener)
     }
 
     override fun onBindViewHolder(holder: SessionsViewHolder, position: Int) {
-        val session = sessions[position]
-        holder.bind(session)
+        holder.bind(sessions?.get(position))
     }
-
-    override fun getItemCount(): Int = sessions.size
 }

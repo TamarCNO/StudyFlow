@@ -4,13 +4,11 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.studyflow.base.MyApplication
-import com.example.studyflow.model.PostEntity
 import com.example.studyflow.model.Session
 
-@Database(entities = [Session::class, PostEntity::class], version = 7)
+@Database(entities = [Session::class], version = 9)
 abstract class AppLocalDbRepository : RoomDatabase() {
     abstract fun sessionDao(): SessionDao
-    abstract fun postDao(): PostDao
 }
 
 object AppLocalDb {

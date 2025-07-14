@@ -1,15 +1,17 @@
 package com.example.studyflow
 
+import SessionListViewModel
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.example.studyflow.databinding.FragmentDetailsBinding
 import com.example.studyflow.model.Session
 import com.example.studyflow.model.dao.AppLocalDb
 import com.google.firebase.firestore.FirebaseFirestore
@@ -18,80 +20,74 @@ import java.util.concurrent.Executors
 
 class DetailsFragment : Fragment() {
 
-    private lateinit var topicTextView: TextView
-    private lateinit var dateTextView: TextView
-    private lateinit var timeTextView: TextView
-    private lateinit var statusTextView: TextView
-    private lateinit var studentEmailTextView: TextView
-    private lateinit var materialImageView: ImageView
-    private lateinit var editButton: Button
-    private lateinit var progressBar: ProgressBar
-
-    private lateinit var sessionDao: com.example.studyflow.model.dao.SessionDao
-    private lateinit var firestoreDb: FirebaseFirestore
+    private var _binding: FragmentDetailsBinding? = null
+    private val binding get() = _binding!!
 
     private val args: DetailsFragmentArgs by navArgs()
+    private lateinit var viewModel: SessionListViewModel
+
+    private val sessionDao by lazy { AppLocalDb.db.sessionDao() }
+    private val firestoreDb by lazy { FirebaseFirestore.getInstance() }
     private val dbExecutor = Executors.newSingleThreadExecutor()
 
     private var currentSession: Session? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        sessionDao = AppLocalDb.db.sessionDao()
-        firestoreDb = FirebaseFirestore.getInstance()
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_details, container, false)
+    ): View {
+        _binding = FragmentDetailsBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        topicTextView = view.findViewById(R.id.sessionTopicTextView)
-        dateTextView = view.findViewById(R.id.sessionDateTextView)
-        timeTextView = view.findViewById(R.id.sessionTimeTextView)
-        statusTextView = view.findViewById(R.id.sessionStatusValue)
-        studentEmailTextView = view.findViewById(R.id.sessionStudentEmailValue)
-        materialImageView = view.findViewById(R.id.sessionImageView)
-        editButton = view.findViewById(R.id.editSessionButton)
-        progressBar = view.findViewById(R.id.progressBar)
+        viewModel = ViewModelProvider(requireActivity())[SessionListViewModel::class.java]
+        binding.progressBar.visibility = View.VISIBLE
 
-        loadSession(args.sessionId)
+        // ננסה למצוא את ה-Session מה-ViewModel
+        viewModel.sessions.observe(viewLifecycleOwner) { sessions ->
+            val session = sessions.find { it.id == args.sessionId }
+            if (session != null) {
+                currentSession = session
+                fillUI(session)
+                binding.progressBar.visibility = View.GONE
+            } else {
+                // לא נמצא ב-ViewModel → נטען מ-Room או Firestore
+                loadFromLocalOrRemote(args.sessionId)
+            }
+        }
 
-        editButton.setOnClickListener {
+        binding.editSessionButton.setOnClickListener {
             currentSession?.let { session ->
-                val action = DetailsFragmentDirections
-                    .actionDetailsFragmentToEditSessionFragment(session.id)
+                val action = DetailsFragmentDirections.actionDetailsFragmentToEditSessionFragment(session.id)
                 findNavController().navigate(action)
             }
         }
     }
 
-    private fun loadSession(sessionId: String) {
-        progressBar.visibility = View.VISIBLE
-
+    private fun loadFromLocalOrRemote(sessionId: String) {
         sessionDao.getById(sessionId).observe(viewLifecycleOwner) { session ->
             if (session != null) {
                 currentSession = session
-                displaySession(session)
-                progressBar.visibility = View.GONE
+                fillUI(session)
+                binding.progressBar.visibility = View.GONE
             } else {
-                fetchSessionFromFirestore(sessionId)
+                loadFromFirestore(sessionId)
             }
         }
     }
 
-    private fun fetchSessionFromFirestore(sessionId: String) {
+    private fun loadFromFirestore(sessionId: String) {
         firestoreDb.collection("sessions").document(sessionId).get()
             .addOnSuccessListener { document ->
                 val session = document.toObject(Session::class.java)
                 if (session != null) {
                     currentSession = session
-                    displaySession(session)
+                    fillUI(session)
+
+                    // נכניס אותו ל-ROOM ולעדכון ה-ViewModel
                     dbExecutor.execute {
                         sessionDao.insert(session)
                     }
@@ -99,36 +95,32 @@ class DetailsFragment : Fragment() {
                     showErrorDialog("Session not found")
                     findNavController().popBackStack()
                 }
-                progressBar.visibility = View.GONE
+                binding.progressBar.visibility = View.GONE
             }
             .addOnFailureListener { e ->
-                showErrorDialog("Error loading session: ${e.message}")
-                Log.e("DetailsFragment", "Failed to load session from Firestore", e)
-                progressBar.visibility = View.GONE
+                showErrorDialog("Failed to load session: ${e.message}")
+                Log.e("DetailsFragment", "Firestore load error", e)
+                binding.progressBar.visibility = View.GONE
                 findNavController().popBackStack()
             }
     }
 
-    private fun displaySession(session: Session) {
-        topicTextView.text = session.topic ?: ""
-        dateTextView.text = session.date ?: ""
-        timeTextView.text = session.time ?: ""
-        statusTextView.text = session.status ?: ""
-        studentEmailTextView.text = session.studentEmail ?: ""
+    private fun fillUI(session: Session) {
+        binding.sessionTopicTextView.text = session.topic ?: ""
+        binding.sessionDateTextView.text = session.date ?: ""
+        binding.sessionTimeTextView.text = session.time ?: ""
+        binding.sessionStatusValue.text = session.status ?: ""
+        binding.sessionStudentEmailValue.text = session.studentEmail ?: ""
 
         if (!session.materialImageUrl.isNullOrEmpty()) {
             Picasso.get()
                 .load(session.materialImageUrl)
                 .placeholder(R.drawable.profile_placeholder)
                 .error(R.drawable.profile_placeholder)
-                .into(materialImageView)
+                .into(binding.sessionImageView)
         } else {
-            setDefaultImage()
+            binding.sessionImageView.setImageResource(R.drawable.profile_placeholder)
         }
-    }
-
-    private fun setDefaultImage() {
-        materialImageView.setImageResource(R.drawable.profile_placeholder)
     }
 
     private fun showErrorDialog(message: String) {
@@ -139,8 +131,9 @@ class DetailsFragment : Fragment() {
             .show()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
         dbExecutor.shutdown()
     }
 }

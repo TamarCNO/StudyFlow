@@ -7,164 +7,171 @@
     android:layout_height="match_parent"
     android:padding="16dp">
 
-    <!-- נושא הסשן -->
-    <TextView
-        android:id="@+id/sessionTopicLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Session Topic"
-        android:textSize="16sp"
-        android:textStyle="bold"
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
-
-    <TextView
-        android:id="@+id/sessionTopicTextView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="16sp"
-        android:layout_marginTop="4dp"
-        app:layout_constraintTop_toBottomOf="@id/sessionTopicLabel"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <!-- תאריך -->
-    <TextView
-        android:id="@+id/sessionDateLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Date"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/sessionTopicTextView"
-        app:layout_constraintStart_toStartOf="parent"/>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/sessionDateTextView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="16sp"
-        android:layout_marginTop="4dp"
-        app:layout_constraintTop_toBottomOf="@id/sessionDateLabel"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+            <TextView
+                android:id="@+id/sessionTopicLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Session Topic"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"/>
 
-    <!-- שעה -->
-    <TextView
-        android:id="@+id/sessionTimeLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Time"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/sessionDateTextView"
-        app:layout_constraintStart_toStartOf="parent"/>
+            <TextView
+                android:id="@+id/sessionTopicTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="16sp"
+                android:layout_marginTop="4dp"
+                app:layout_constraintTop_toBottomOf="@id/sessionTopicLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
 
-    <TextView
-        android:id="@+id/sessionTimeTextView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="16sp"
-        android:layout_marginTop="4dp"
-        app:layout_constraintTop_toBottomOf="@id/sessionTimeLabel"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+            <TextView
+                android:id="@+id/sessionDateLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Date"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"
+                app:layout_constraintTop_toBottomOf="@id/sessionTopicTextView"
+                app:layout_constraintStart_toStartOf="parent"/>
 
-    <!-- סטטוס -->
-    <TextView
-        android:id="@+id/sessionStatusLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Status"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/sessionTimeTextView"
-        app:layout_constraintStart_toStartOf="parent"/>
+            <TextView
+                android:id="@+id/sessionDateTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="16sp"
+                android:layout_marginTop="4dp"
+                app:layout_constraintTop_toBottomOf="@id/sessionDateLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
 
-    <TextView
-        android:id="@+id/sessionStatusValue"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="16sp"
-        android:layout_marginTop="4dp"
-        app:layout_constraintTop_toBottomOf="@id/sessionStatusLabel"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+            <TextView
+                android:id="@+id/sessionTimeLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Time"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"
+                app:layout_constraintTop_toBottomOf="@id/sessionDateTextView"
+                app:layout_constraintStart_toStartOf="parent"/>
 
-    <!-- מייל תלמיד -->
-    <TextView
-        android:id="@+id/sessionStudentEmailLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Student Email"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/sessionStatusValue"
-        app:layout_constraintStart_toStartOf="parent"/>
+            <TextView
+                android:id="@+id/sessionTimeTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="16sp"
+                android:layout_marginTop="4dp"
+                app:layout_constraintTop_toBottomOf="@id/sessionTimeLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
 
-    <TextView
-        android:id="@+id/sessionStudentEmailValue"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="16sp"
-        android:layout_marginTop="4dp"
-        app:layout_constraintTop_toBottomOf="@id/sessionStudentEmailLabel"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+            <TextView
+                android:id="@+id/sessionStatusLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Status"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"
+                app:layout_constraintTop_toBottomOf="@id/sessionTimeTextView"
+                app:layout_constraintStart_toStartOf="parent"/>
 
-    <!-- כותרת חומרים -->
-    <TextView
-        android:id="@+id/materialsLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Materials"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:layout_marginTop="24dp"
-        app:layout_constraintTop_toBottomOf="@id/sessionStudentEmailValue"
-        app:layout_constraintStart_toStartOf="parent"/>
+            <TextView
+                android:id="@+id/sessionStatusValue"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="16sp"
+                android:layout_marginTop="4dp"
+                app:layout_constraintTop_toBottomOf="@id/sessionStatusLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- תמונה לחומר לימוד -->
-    <ImageView
-        android:id="@+id/sessionImageView"
-        android:layout_width="0dp"
-        android:layout_height="200dp"
-        android:layout_marginTop="8dp"
-        android:scaleType="centerCrop"
-        android:contentDescription="Session material image"
-        android:background="#DDDDDD"
-        app:layout_constraintTop_toBottomOf="@id/materialsLabel"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+            <TextView
+                android:id="@+id/sessionStudentEmailLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Student Email"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"
+                app:layout_constraintTop_toBottomOf="@id/sessionStatusValue"
+                app:layout_constraintStart_toStartOf="parent"/>
 
-    <!-- כפתור עריכה -->
-    <Button
-        android:id="@+id/editSessionButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Edit"
-        android:layout_marginTop="24dp"
-        app:layout_constraintTop_toBottomOf="@id/sessionImageView"
-        app:layout_constraintEnd_toEndOf="parent"/>
+            <TextView
+                android:id="@+id/sessionStudentEmailValue"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="16sp"
+                android:layout_marginTop="4dp"
+                app:layout_constraintTop_toBottomOf="@id/sessionStudentEmailLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- ProgressBar לטעינה -->
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp"/>
+            <TextView
+                android:id="@+id/materialsLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Materials"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginTop="24dp"
+                app:layout_constraintTop_toBottomOf="@id/sessionStudentEmailValue"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <ImageView
+                android:id="@+id/sessionImageView"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:layout_marginTop="8dp"
+                android:scaleType="centerCrop"
+                android:contentDescription="Session material image"
+                android:background="#DDDDDD"
+                app:layout_constraintTop_toBottomOf="@id/materialsLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+            <Button
+                android:id="@+id/editSessionButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Edit"
+                android:layout_marginTop="24dp"
+                app:layout_constraintTop_toBottomOf="@id/sessionImageView"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:visibility="gone"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_margin="16dp"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

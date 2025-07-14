@@ -12,13 +12,14 @@ import java.io.File
 import java.io.FileOutputStream
 
 class CloudinaryModel {
-    private val cloudinaryConfig = mapOf(
-        "cloud_name" to "dcicwlwov"
-    )
 
     init {
-        MyApplication.Globals.appContext?.let { appContext  ->
-            MediaManager.init(appContext , cloudinaryConfig)
+        val config = mapOf(
+            "cloud_name" to "dcicwlwov"
+        )
+
+        MyApplication.Globals.appContext?.let {
+            MediaManager.init(it, config)
             MediaManager.get().globalUploadPolicy = GlobalUploadPolicy.Builder()
                 .maxConcurrentRequests(3)
                 .networkPolicy(UploadPolicy.NetworkType.UNMETERED)
@@ -31,30 +32,24 @@ class CloudinaryModel {
             onError("Application context is null, cannot upload.")
             return
         }
+
         val file = bitmapToFile(bitmap, context)
+
         MediaManager.get().upload(file.path)
-            .option("upload_preset", "studyflow_unsigned_uploads")
+            .option("folder", "images")
             .callback(object : UploadCallback {
-                override fun onStart(requestId: String) { }
-                override fun onProgress(requestId: String, bytes: Long, totalBytes: Long) { }
+                override fun onStart(requestId: String) {}
+                override fun onProgress(requestId: String, bytes: Long, totalBytes: Long) {}
                 override fun onSuccess(requestId: String, resultData: Map<*, *>) {
                     val publicUrl = resultData["secure_url"] as? String ?: ""
-                    if (publicUrl.isNotEmpty()) {
-                        onSuccess(publicUrl)
-                    } else {
-                        onError("Empty URL received from Cloudinary")
-                        System.err.println("Cloudinary Upload Warning: Public URL empty for $requestId.")
-                    }
-                    file.delete()
+                    onSuccess(publicUrl)
                 }
+
                 override fun onError(requestId: String?, error: ErrorInfo?) {
                     onError(error?.description ?: "Unknown error")
-                    file.delete()
                 }
-                override fun onReschedule(requestId: String?, error: ErrorInfo?) {
-                    println("Cloudinary Upload Rescheduled for $requestId. Error: ${error?.description}")
-                    file.delete()
-                }
+
+                override fun onReschedule(requestId: String?, error: ErrorInfo?) {}
             })
             .dispatch()
     }

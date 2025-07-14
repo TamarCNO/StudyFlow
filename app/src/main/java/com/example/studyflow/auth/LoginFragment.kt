@@ -39,15 +39,11 @@ class LoginFragment : Fragment() {
             }
 
             viewModel.login(email, password) {
-                // Sign in success, update UI with the signed-in user's information
                 Toast.makeText(requireContext(), "Login successful!", Toast.LENGTH_SHORT).show()
                 findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToSessionsFragmentList())
             }
         }
 
-        // --- NEW --- You have a signUpLink and actionLoginFragmentToSignUpFragment
-        // This implies you will have a separate SignUpFragment.
-        // We need to create that next, and also update nav_graph.xml
         binding.signUpLink.setOnClickListener {
             findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToSignUpFragment())
         }
@@ -58,25 +54,21 @@ class LoginFragment : Fragment() {
     private fun observeViewModel() {
         viewModel.errorMessage.observe(viewLifecycleOwner) { error ->
             error?.let {
-                // If sign in fails, display a message to the user.
                 Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
                 viewModel.clearError()
             }
         }
 
         viewModel.loading.observe(viewLifecycleOwner) { isLoading ->
-            // Use binding.progressBar for visibility
-            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE // Ensure ID matches your XML
+            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
             binding.loginButton.isEnabled = !isLoading
-            binding.emailEditText.isEnabled = !isLoading // Disable inputs while loading
+            binding.emailEditText.isEnabled = !isLoading
             binding.passwordEditText.isEnabled = !isLoading
-            binding.signUpLink.isEnabled = !isLoading // Disable sign-up link too
+            binding.signUpLink.isEnabled = !isLoading
         }
 
-        // Observe the user LiveData from AuthViewModel to handle automatic navigation if already logged in
         viewModel.user.observe(viewLifecycleOwner) { user ->
             if (user != null && findNavController().currentDestination?.id == R.id.loginFragment) {
-                // User is logged in and we are currently on the login fragment, navigate to sessions
                 findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToSessionsFragmentList())
             }
         }
@@ -85,7 +77,6 @@ class LoginFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        // It's good practice to clear messages here too, in case navigation doesn't happen immediately
         viewModel.clearError()
     }
 }

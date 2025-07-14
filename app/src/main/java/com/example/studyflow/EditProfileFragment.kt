@@ -11,10 +11,9 @@ import android.widget.*
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import com.example.studyflow.model.CloudinaryModel
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.userProfileChangeRequest
+import com.example.studyflow.auth.AuthViewModel
 import com.squareup.picasso.Picasso
 
 class EditProfileFragment : Fragment() {
@@ -28,15 +27,13 @@ class EditProfileFragment : Fragment() {
     private lateinit var buttonCancel: Button
     private lateinit var progressBar: ProgressBar
 
-    private val auth = FirebaseAuth.getInstance()
+    private lateinit var authViewModel: AuthViewModel
 
     private var selectedImageBitmap: Bitmap? = null
     private var selectedImageUri: Uri? = null
 
     private lateinit var pickImageLauncher: ActivityResultLauncher<String>
     private lateinit var takePictureLauncher: ActivityResultLauncher<Void?>
-
-    private val cloudinaryModel = CloudinaryModel()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -48,6 +45,8 @@ class EditProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        authViewModel = ViewModelProvider(requireActivity()).get(AuthViewModel::class.java)
+
         profileImageView = view.findViewById(R.id.profileImageView)
         cameraIcon = view.findViewById(R.id.cameraIcon)
         inputFirstName = view.findViewById(R.id.inputFirstName)
@@ -58,11 +57,12 @@ class EditProfileFragment : Fragment() {
         progressBar = view.findViewById(R.id.progressBar)
 
         loadUserData()
+        setupObservers()
 
         pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
             uri?.let {
                 selectedImageUri = it
-                selectedImageBitmap = null
+                selectedImageBitmap = uriToBitmap(it)
                 Picasso.get().load(it).into(profileImageView)
             }
         }
@@ -89,11 +89,29 @@ class EditProfileFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            uploadProfileImageThenUpdate(firstName, lastName, email)
+            authViewModel.updateProfile(firstName, lastName, email, selectedImageBitmap) {
+                Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show()
+                clearSelectedImage()
+                findNavController().navigate(R.id.action_editProfileFragment_to_profileFragment)
+            }
         }
 
         buttonCancel.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
+        }
+    }
+
+    private fun setupObservers() {
+        authViewModel.loading.observe(viewLifecycleOwner) { isLoading ->
+            progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+            buttonSave.isEnabled = !isLoading
+        }
+
+        authViewModel.errorMessage.observe(viewLifecycleOwner) { errorMessage ->
+            errorMessage?.let {
+                Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
+                authViewModel.clearError()
+            }
         }
     }
 
@@ -111,26 +129,24 @@ class EditProfileFragment : Fragment() {
     }
 
     private fun loadUserData() {
-        val user = auth.currentUser
-        if (user == null) {
+        authViewModel.user.value?.let { user ->
+            inputEmail.setText(user.email ?: "")
+
+            val displayName = user.displayName ?: ""
+            if (displayName.contains(" ")) {
+                val parts = displayName.split(" ")
+                inputFirstName.setText(parts.getOrNull(0) ?: "")
+                inputLastName.setText(parts.getOrNull(1) ?: "")
+            } else {
+                inputFirstName.setText(displayName)
+                inputLastName.setText("")
+            }
+
+            user.photoUrl?.let {
+                Picasso.get().load(it).into(profileImageView)
+            }
+        } ?: run {
             Toast.makeText(requireContext(), "User not logged in", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        inputEmail.setText(user.email ?: "")
-
-        val displayName = user.displayName ?: ""
-        if (displayName.contains(" ")) {
-            val parts = displayName.split(" ")
-            inputFirstName.setText(parts.getOrNull(0) ?: "")
-            inputLastName.setText(parts.getOrNull(1) ?: "")
-        } else {
-            inputFirstName.setText(displayName)
-            inputLastName.setText("")
-        }
-
-        user.photoUrl?.let {
-            Picasso.get().load(it).into(profileImageView)
         }
     }
 
@@ -141,90 +157,6 @@ class EditProfileFragment : Fragment() {
         } catch (e: Exception) {
             e.printStackTrace()
             null
-        }
-    }
-
-    private fun uploadProfileImageThenUpdate(firstName: String, lastName: String, email: String) {
-        buttonSave.isEnabled = false
-        progressBar.visibility = View.VISIBLE
-
-        when {
-            selectedImageBitmap != null -> {
-                cloudinaryModel.uploadBitmap(selectedImageBitmap!!, { url ->
-                    updateUserProfile(firstName, lastName, email, url)
-                }, { errorMsg ->
-                    progressBar.visibility = View.GONE
-                    buttonSave.isEnabled = true
-                    Toast.makeText(requireContext(), "Failed to upload image: $errorMsg", Toast.LENGTH_LONG).show()
-                })
-            }
-            selectedImageUri != null -> {
-                val bitmap = uriToBitmap(selectedImageUri!!)
-                if (bitmap != null) {
-                    cloudinaryModel.uploadBitmap(bitmap, { url ->
-                        updateUserProfile(firstName, lastName, email, url)
-                    }, { errorMsg ->
-                        progressBar.visibility = View.GONE
-                        buttonSave.isEnabled = true
-                        Toast.makeText(requireContext(), "Failed to upload image: $errorMsg", Toast.LENGTH_LONG).show()
-                    })
-                } else {
-                    progressBar.visibility = View.GONE
-                    buttonSave.isEnabled = true
-                    Toast.makeText(requireContext(), "Failed to convert image", Toast.LENGTH_LONG).show()
-                }
-            }
-            else -> {
-                updateUserProfile(firstName, lastName, email, null)
-            }
-        }
-    }
-
-    private fun updateUserProfile(firstName: String, lastName: String, email: String, photoUrl: String?) {
-        val user = auth.currentUser ?: run {
-            Toast.makeText(requireContext(), "User not logged in", Toast.LENGTH_SHORT).show()
-            progressBar.visibility = View.GONE
-            buttonSave.isEnabled = true
-            return
-        }
-
-        val updateEmailTask = if (email != user.email) {
-            user.updateEmail(email)
-        } else null
-
-        val updateProfile = {
-            val fullName = "$firstName $lastName".trim()
-            val profileUpdates = userProfileChangeRequest {
-                displayName = fullName
-                photoUri = photoUrl?.let { Uri.parse(it) }
-            }
-
-            user.updateProfile(profileUpdates)
-                .addOnCompleteListener { task ->
-                    progressBar.visibility = View.GONE
-                    buttonSave.isEnabled = true
-                    if (task.isSuccessful) {
-                        Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show()
-                        clearSelectedImage()
-                        findNavController().navigate(R.id.action_editProfileFragment_to_profileFragment)
-                    } else {
-                        Toast.makeText(requireContext(), "Failed to update profile: ${task.exception?.message}", Toast.LENGTH_LONG).show()
-                    }
-                }
-        }
-
-        if (updateEmailTask != null) {
-            updateEmailTask.addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    updateProfile()
-                } else {
-                    progressBar.visibility = View.GONE
-                    buttonSave.isEnabled = true
-                    Toast.makeText(requireContext(), "Failed to update email: ${task.exception?.message}", Toast.LENGTH_LONG).show()
-                }
-            }
-        } else {
-            updateProfile()
         }
     }
 

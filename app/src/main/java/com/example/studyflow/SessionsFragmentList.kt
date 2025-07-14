@@ -1,5 +1,6 @@
 package com.example.studyflow
 
+import SessionListViewModel
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -28,6 +29,8 @@ class SessionsFragmentList : Fragment() {
 
     private lateinit var sessionsAdapter: SessionsAdapter
     private val sessionDao by lazy { AppLocalDb.db.sessionDao() }
+    private lateinit var viewModel: SessionListViewModel
+
     private val firestoreDb by lazy {
         FirebaseFirestore.getInstance().apply {
             firestoreSettings = firestoreSettings {
@@ -47,22 +50,22 @@ class SessionsFragmentList : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Initialize adapter with empty list
-        sessionsAdapter = SessionsAdapter(emptyList(), object : SessionsViewHolder.OnItemClickListener {
+        viewModel = androidx.lifecycle.ViewModelProvider(requireActivity())[SessionListViewModel::class.java]
+
+        sessionsAdapter = SessionsAdapter(emptyList())
+        sessionsAdapter.listener = object : SessionsViewHolder.OnItemClickListener {
             override fun onItemClick(session: Session) {
                 val action = SessionsFragmentListDirections
                     .actionSessionsFragmentListToDetailsFragment(session.id)
                 findNavController().navigate(action)
             }
-        })
+        }
 
         binding.sessionsRecyclerView.adapter = sessionsAdapter
 
-        // Observe DB LiveData
+        // מאזין ל-ROOM, מזין את ה-ViewModel
         sessionDao.getAll().observe(viewLifecycleOwner) { sessions ->
-            // Update adapter data & notify
-            sessionsAdapter.set(sessions)
-            sessionsAdapter.notifyDataSetChanged()
+            viewModel.setSessions(sessions)
 
             if (sessions.isEmpty()) {
                 setLoadingState(true)
@@ -71,6 +74,12 @@ class SessionsFragmentList : Fragment() {
                 setLoadingState(false)
                 refreshSessionsFromFirestore(showLoading = false)
             }
+        }
+
+        // מאזין ל-ViewModel, מציג ב-Adapter
+        viewModel.sessions.observe(viewLifecycleOwner) { sessions ->
+            sessionsAdapter.set(sessions)
+            sessionsAdapter.notifyDataSetChanged()
         }
     }
 
@@ -84,6 +93,7 @@ class SessionsFragmentList : Fragment() {
                     sessionDao.deleteAll()
                     sessionDao.insertAll(sessions)
                     Log.d("SessionsFragmentList", "Synced ${sessions.size} sessions from Firestore")
+
                     if (showLoading) {
                         withContext(Dispatchers.Main) {
                             setLoadingState(false)

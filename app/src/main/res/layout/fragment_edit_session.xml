@@ -3,192 +3,311 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/editSessionLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
     tools:context=".EditSessionFragment">
 
-    <TextView
-        android:id="@+id/labelEditSession"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Edit Session Details"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="16dp"/>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/inputLayoutTopic"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/labelEditSession"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/sessionTopicEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Topic"
-            android:inputType="textCapSentences"
-            android:maxLines="1"/>
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/inputLayoutDate"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/inputLayoutTopic"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/sessionDateEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Date (e.g., DD/MM/YYYY)"
-            android:inputType="date"
-            android:maxLines="1"/>
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/inputLayoutTime"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/inputLayoutDate"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/sessionTimeEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Time (e.g., HH:MM)"
-            android:inputType="time"
-            android:maxLines="1"/>
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/inputLayoutStatus"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/inputLayoutTime"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/sessionStatusEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Status (e.g., Planned, Completed)"
-            android:inputType="textCapSentences"
-            android:maxLines="1"/>
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/inputLayoutStudentEmail"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/inputLayoutStatus"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/sessionStudentEmailEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Student Email"
-            android:inputType="textEmailAddress"
-            android:maxLines="1"/>
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <ImageView
-        android:id="@+id/sessionImageView"
-        android:layout_width="0dp"
-        android:layout_height="180dp"
-        android:layout_marginTop="16dp"
-        android:scaleType="centerCrop"
-        android:background="#DDDDDD"
-        android:contentDescription="Session material image"
-        app:layout_constraintTop_toBottomOf="@id/inputLayoutStudentEmail"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <ImageButton
-        android:id="@+id/editMaterialImageButton"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:src="@android:drawable/ic_menu_camera"
-        android:contentDescription="Edit material image"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:elevation="2dp"
-        app:layout_constraintEnd_toEndOf="@id/sessionImageView"
-        app:layout_constraintBottom_toBottomOf="@id/sessionImageView"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"/>
-
-    <LinearLayout
-        android:id="@+id/buttonLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/sessionImageView">
-
-        <Button
-            android:id="@+id/saveSessionButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_weight="1"
-            android:text="Save" />
-
-        <Button
-            android:id="@+id/cancelSessionButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_weight="1"
-            android:text="Cancel" />
-    </LinearLayout>
-
-    <Button
-        android:id="@+id/deleteSessionButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Delete Session"
-        android:backgroundTint="@android:color/holo_red_dark"
-        android:textColor="@android:color/white"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/buttonLayout"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent">
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="64dp">
+
+            <TextView
+                android:id="@+id/labelEditSession"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Edit Session Details"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Topic -->
+            <TextView
+                android:id="@+id/topicLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Session Topic"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                app:layout_constraintTop_toBottomOf="@id/labelEditSession"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/inputLayoutTopic"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/topicLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/sessionTopicEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Enter topic"
+                    android:inputType="textCapSentences"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Date -->
+            <TextView
+                android:id="@+id/dateLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Date"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:layout_marginTop="16dp"
+                app:layout_constraintTop_toBottomOf="@id/inputLayoutTopic"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/inputLayoutDate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/dateLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/sessionDateEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="DD/MM/YYYY"
+                    android:focusable="false"
+                    android:clickable="true"
+                    android:inputType="date"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Time -->
+            <TextView
+                android:id="@+id/timeLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Time"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:layout_marginTop="16dp"
+                app:layout_constraintTop_toBottomOf="@id/inputLayoutDate"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/inputLayoutTime"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/timeLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/sessionTimeEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="HH:MM"
+                    android:focusable="false"
+                    android:clickable="true"
+                    android:inputType="time"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Status -->
+            <TextView
+                android:id="@+id/statusLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Status"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:layout_marginTop="16dp"
+                app:layout_constraintTop_toBottomOf="@id/inputLayoutTime"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/inputLayoutStatus"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/statusLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/sessionStatusEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Enter status"
+                    android:inputType="text"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Student Email -->
+            <TextView
+                android:id="@+id/emailLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Student Email"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:layout_marginTop="16dp"
+                app:layout_constraintTop_toBottomOf="@id/inputLayoutStatus"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/inputLayoutStudentEmail"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/emailLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/sessionStudentEmailEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Enter student email"
+                    android:inputType="textEmailAddress"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Location -->
+            <TextView
+                android:id="@+id/locationLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Location Address"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:layout_marginTop="16dp"
+                app:layout_constraintTop_toBottomOf="@id/inputLayoutStudentEmail"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/inputLayoutLocation"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/locationLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/sessionLocationEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Enter location"
+                    android:inputType="textPostalAddress"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Materials Image -->
+            <TextView
+                android:id="@+id/materialsLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Materials"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:layout_marginTop="24dp"
+                app:layout_constraintTop_toBottomOf="@id/inputLayoutLocation"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <ImageView
+                android:id="@+id/sessionImageView"
+                android:layout_width="0dp"
+                android:layout_height="180dp"
+                android:layout_marginTop="8dp"
+                android:scaleType="centerCrop"
+                android:background="#DDDDDD"
+                android:contentDescription="Session material image"
+                app:layout_constraintTop_toBottomOf="@id/materialsLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+            <ImageButton
+                android:id="@+id/editMaterialImageButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@android:drawable/ic_menu_camera"
+                android:contentDescription="Edit material image"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                app:layout_constraintEnd_toEndOf="@id/sessionImageView"
+                app:layout_constraintBottom_toBottomOf="@id/sessionImageView"
+                android:layout_margin="8dp"/>
+
+            <TextView
+                android:id="@+id/imageStorageLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Image Storage Option:"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:layout_marginTop="16dp"
+                app:layout_constraintTop_toBottomOf="@id/sessionImageView"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <!-- Buttons -->
+            <LinearLayout
+                android:id="@+id/buttonLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:orientation="horizontal"
+                app:layout_constraintTop_toBottomOf="@id/imageStorageLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <Button
+                    android:id="@+id/saveSessionButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:text="Save" />
+
+                <Button
+                    android:id="@+id/cancelSessionButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:text="Cancel" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/deleteSessionButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Delete Session"
+                android:backgroundTint="@android:color/holo_red_dark"
+                android:textColor="@android:color/white"
+                android:layout_marginTop="16dp"
+                app:layout_constraintTop_toBottomOf="@id/buttonLayout"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/deleteSessionButton"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

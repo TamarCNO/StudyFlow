@@ -1,42 +1,39 @@
 package com.example.studyflow.model
 
 import android.graphics.Bitmap
+import android.util.Log
 
 class Model private constructor() {
-
-    private val cloudinaryModel = CloudinaryModel()
 
     companion object {
         val shared = Model()
     }
 
-    fun addSessionWithImage(session: Session, image: Bitmap?, callback: (Session?) -> Unit) {
-        if (image == null) {
-            callback(session)
-            return
-        }
+    private val firebaseModel = FirebaseModel()
+    private val cloudinaryModel = CloudinaryModel()
 
-        uploadImageToCloudinary(image, session.id,
-            onSuccess = { imageUrl ->
-                val updatedSession = session.copy(materialImageUrl = imageUrl)
-                callback(updatedSession)
-            },
-            onError = {
-                callback(null)
-            }
-        )
+    fun getAllSessions(callback: (List<Session>) -> Unit) {
+        firebaseModel.getAllSessions(callback)
     }
 
-    private fun uploadImageToCloudinary(
-        image: Bitmap,
-        name: String,
-        onSuccess: (String) -> Unit,
-        onError: (String) -> Unit
-    ) {
-        cloudinaryModel.uploadBitmap(
-            bitmap = image,
-            onSuccess = onSuccess,
-            onError = onError
-        )
+    fun addSession(session: Session, image: Bitmap?, callback: (Boolean) -> Unit) {
+        if (image == null) {
+            firebaseModel.add(session) {
+                callback(true)
+            }
+        } else {
+            cloudinaryModel.uploadBitmap(image,
+                onSuccess = { imageUrl ->
+                    val updatedSession = session.copy(materialImageUrl = imageUrl)
+                    firebaseModel.add(updatedSession) {
+                        callback(true)
+                    }
+                },
+                onError = { error ->
+                    Log.e("Model", "Cloudinary upload failed: $error")
+                    callback(false)
+                }
+            )
+        }
     }
 }
