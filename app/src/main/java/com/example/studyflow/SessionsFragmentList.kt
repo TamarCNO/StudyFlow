@@ -3,9 +3,7 @@ package com.example.studyflow
 import SessionListViewModel
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -39,6 +37,11 @@ class SessionsFragmentList : Fragment() {
         }
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -63,7 +66,6 @@ class SessionsFragmentList : Fragment() {
 
         binding.sessionsRecyclerView.adapter = sessionsAdapter
 
-        // מאזין ל-ROOM, מזין את ה-ViewModel
         sessionDao.getAll().observe(viewLifecycleOwner) { sessions ->
             viewModel.setSessions(sessions)
 
@@ -76,7 +78,6 @@ class SessionsFragmentList : Fragment() {
             }
         }
 
-        // מאזין ל-ViewModel, מציג ב-Adapter
         viewModel.sessions.observe(viewLifecycleOwner) { sessions ->
             sessionsAdapter.set(sessions)
             sessionsAdapter.notifyDataSetChanged()
@@ -114,6 +115,25 @@ class SessionsFragmentList : Fragment() {
         binding.apply {
             progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
             sessionsRecyclerView.visibility = if (isLoading) View.GONE else View.VISIBLE
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.MapFragment -> {
+                findNavController().navigate(R.id.action_sessionsFragmentList_to_mapFragment)
+                true
+            }
+            R.id.addSessionFragment -> {
+                findNavController().navigate(R.id.action_sessionsFragmentList_to_addSessionFragment)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 

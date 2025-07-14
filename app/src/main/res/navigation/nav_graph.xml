@@ -32,7 +32,7 @@
         android:id="@+id/sessionsFragmentList"
         android:name="com.example.studyflow.SessionsFragmentList"
         android:label="SessionsFragmentList"
-        tools:layout="@layout/fragment_sessions_list">
+        tools:layout="@layout/fragment_sessions_recycler_view">
         <action
         android:id="@+id/action_sessionsFragmentList_to_addSessionFragment"
         app:destination="@id/addSessionFragment" />
@@ -107,5 +107,12 @@
         android:id="@+id/action_editProfileFragment_to_profileFragment"
         app:destination="@id/profileFragment" />
     </fragment>
-
+    <fragment
+        android:id="@+id/mapFragment"
+        android:name="com.example.studyflow.MapFragment"
+        android:label="MapFragment"
+        tools:layout="@layout/fragment_map" />
+    <action
+        android:id="@+id/action_sessionsFragmentList_to_mapFragment"
+        app:destination="@id/mapFragment" />
 </navigation>

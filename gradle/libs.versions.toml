@@ -13,7 +13,6 @@ constraintlayout = "2.2.1"
 navigationFragmentKtx = "2.9.1"
 navigationSafeArgsGradlePlugin = "2.9.1"
 picasso = "2.8"
-playServicesMapsVersion = "18.1.0"
 roomRuntimeVersion = "2.7.2"
 googleServices = "4.4.3"
 cloudinaryAndroid = "2.3.1"
@@ -39,7 +38,6 @@ material = { group = "com.google.android.material", name = "material", version.r
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 picasso = { module = "com.squareup.picasso:picasso", version.ref = "picasso" }
-play-services-maps-v1810 = { module = "com.google.android.gms:play-services-maps", version.ref = "playServicesMapsVersion" }
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntimeVersion" }
 play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
 

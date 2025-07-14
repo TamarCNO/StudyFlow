@@ -7,25 +7,20 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.studyflow.auth.AuthViewModel
+import com.example.studyflow.databinding.FragmentEditProfileBinding
 import com.squareup.picasso.Picasso
 
 class EditProfileFragment : Fragment() {
 
-    private lateinit var profileImageView: ImageView
-    private lateinit var cameraIcon: ImageView
-    private lateinit var inputFirstName: EditText
-    private lateinit var inputLastName: EditText
-    private lateinit var inputEmail: EditText
-    private lateinit var buttonSave: Button
-    private lateinit var buttonCancel: Button
-    private lateinit var progressBar: ProgressBar
+    private var _binding: FragmentEditProfileBinding? = null
+    private val binding get() = _binding!!
 
     private lateinit var authViewModel: AuthViewModel
 
@@ -38,23 +33,15 @@ class EditProfileFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_edit_profile, container, false)
+    ): View {
+        _binding = FragmentEditProfileBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         authViewModel = ViewModelProvider(requireActivity()).get(AuthViewModel::class.java)
-
-        profileImageView = view.findViewById(R.id.profileImageView)
-        cameraIcon = view.findViewById(R.id.cameraIcon)
-        inputFirstName = view.findViewById(R.id.inputFirstName)
-        inputLastName = view.findViewById(R.id.inputLastName)
-        inputEmail = view.findViewById(R.id.inputEmail)
-        buttonSave = view.findViewById(R.id.buttonSave)
-        buttonCancel = view.findViewById(R.id.buttonCancel)
-        progressBar = view.findViewById(R.id.progressBar)
 
         loadUserData()
         setupObservers()
@@ -63,7 +50,7 @@ class EditProfileFragment : Fragment() {
             uri?.let {
                 selectedImageUri = it
                 selectedImageBitmap = uriToBitmap(it)
-                Picasso.get().load(it).into(profileImageView)
+                Picasso.get().load(it).into(binding.profileImageView)
             }
         }
 
@@ -71,18 +58,18 @@ class EditProfileFragment : Fragment() {
             bitmap?.let {
                 selectedImageBitmap = it
                 selectedImageUri = null
-                profileImageView.setImageBitmap(it)
+                binding.profileImageView.setImageBitmap(it)
             }
         }
 
-        cameraIcon.setOnClickListener {
+        binding.cameraIcon.setOnClickListener {
             showImageSourceOptions()
         }
 
-        buttonSave.setOnClickListener {
-            val firstName = inputFirstName.text.toString().trim()
-            val lastName = inputLastName.text.toString().trim()
-            val email = inputEmail.text.toString().trim()
+        binding.buttonSave.setOnClickListener {
+            val firstName = binding.inputFirstName.text.toString().trim()
+            val lastName = binding.inputLastName.text.toString().trim()
+            val email = binding.inputEmail.text.toString().trim()
 
             if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty()) {
                 Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show()
@@ -96,15 +83,15 @@ class EditProfileFragment : Fragment() {
             }
         }
 
-        buttonCancel.setOnClickListener {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
+        binding.buttonCancel.setOnClickListener {
+            findNavController().navigateUp()
         }
     }
 
     private fun setupObservers() {
         authViewModel.loading.observe(viewLifecycleOwner) { isLoading ->
-            progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-            buttonSave.isEnabled = !isLoading
+            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+            binding.buttonSave.isEnabled = !isLoading
         }
 
         authViewModel.errorMessage.observe(viewLifecycleOwner) { errorMessage ->
@@ -130,20 +117,20 @@ class EditProfileFragment : Fragment() {
 
     private fun loadUserData() {
         authViewModel.user.value?.let { user ->
-            inputEmail.setText(user.email ?: "")
+            binding.inputEmail.setText(user.email ?: "")
 
             val displayName = user.displayName ?: ""
             if (displayName.contains(" ")) {
                 val parts = displayName.split(" ")
-                inputFirstName.setText(parts.getOrNull(0) ?: "")
-                inputLastName.setText(parts.getOrNull(1) ?: "")
+                binding.inputFirstName.setText(parts.getOrNull(0) ?: "")
+                binding.inputLastName.setText(parts.getOrNull(1) ?: "")
             } else {
-                inputFirstName.setText(displayName)
-                inputLastName.setText("")
+                binding.inputFirstName.setText(displayName)
+                binding.inputLastName.setText("")
             }
 
             user.photoUrl?.let {
-                Picasso.get().load(it).into(profileImageView)
+                Picasso.get().load(it).into(binding.profileImageView)
             }
         } ?: run {
             Toast.makeText(requireContext(), "User not logged in", Toast.LENGTH_SHORT).show()
@@ -163,5 +150,10 @@ class EditProfileFragment : Fragment() {
     private fun clearSelectedImage() {
         selectedImageBitmap = null
         selectedImageUri = null
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
