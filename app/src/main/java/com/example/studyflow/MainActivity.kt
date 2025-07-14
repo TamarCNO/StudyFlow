@@ -2,7 +2,6 @@ package com.example.studyflow
 
 import android.graphics.Color
 import android.os.Bundle
-import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -46,11 +45,6 @@ class MainActivity : AppCompatActivity() {
 
         val bottomNavigationView: BottomNavigationView = findViewById(R.id.bottom_bar)
         navController?.let { NavigationUI.setupWithNavController(bottomNavigationView, it) }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.bar_menu, menu)
-        return super.onCreateOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

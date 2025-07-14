@@ -5,27 +5,11 @@ import android.graphics.Bitmap
 import com.cloudinary.android.MediaManager
 import com.cloudinary.android.callback.ErrorInfo
 import com.cloudinary.android.callback.UploadCallback
-import com.cloudinary.android.policy.GlobalUploadPolicy
-import com.cloudinary.android.policy.UploadPolicy
 import com.example.studyflow.base.MyApplication
 import java.io.File
 import java.io.FileOutputStream
 
 class CloudinaryModel {
-
-    init {
-        val config = mapOf(
-            "cloud_name" to "dcicwlwov"
-        )
-
-        MyApplication.Globals.appContext?.let {
-            MediaManager.init(it, config)
-            MediaManager.get().globalUploadPolicy = GlobalUploadPolicy.Builder()
-                .maxConcurrentRequests(3)
-                .networkPolicy(UploadPolicy.NetworkType.UNMETERED)
-                .build()
-        }
-    }
 
     fun uploadBitmap(bitmap: Bitmap, onSuccess: (String) -> Unit, onError: (String) -> Unit) {
         val context = MyApplication.Globals.appContext ?: run {
