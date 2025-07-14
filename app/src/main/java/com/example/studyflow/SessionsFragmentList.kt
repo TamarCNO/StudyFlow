@@ -119,18 +119,14 @@ class SessionsFragmentList : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu, menu)
+        inflater.inflate(R.menu.bar_menu, menu)
         super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.MapFragment -> {
-                findNavController().navigate(R.id.action_sessionsFragmentList_to_mapFragment)
-                true
-            }
-            R.id.addSessionFragment -> {
-                findNavController().navigate(R.id.action_sessionsFragmentList_to_addSessionFragment)
+            R.id.profileFragment -> {
+                findNavController().navigate(R.id.profileFragment)
                 true
             }
             else -> super.onOptionsItemSelected(item)

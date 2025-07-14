@@ -1,140 +1,66 @@
 package com.example.studyflow
 
-import SessionListViewModel
+import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
-import android.view.*
-import android.widget.Toast
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
-import com.example.studyflow.adapter.SessionsAdapter
-import com.example.studyflow.adapter.SessionsViewHolder
-import com.example.studyflow.databinding.FragmentSessionsRecyclerViewBinding
-import com.example.studyflow.model.Session
-import com.example.studyflow.model.dao.AppLocalDb
+import android.view.Menu
+import android.view.MenuItem
+import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.NavigationUI
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.firestoreSettings
-import com.google.firebase.firestore.memoryCacheSettings
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
-class SessionsFragmentList : Fragment() {
-
-    private var _binding: FragmentSessionsRecyclerViewBinding? = null
-    private val binding get() = _binding!!
-
-    private lateinit var sessionsAdapter: SessionsAdapter
-    private val sessionDao by lazy { AppLocalDb.db.sessionDao() }
-    private lateinit var viewModel: SessionListViewModel
-
-    private val firestoreDb by lazy {
-        FirebaseFirestore.getInstance().apply {
-            firestoreSettings = firestoreSettings {
-                setLocalCacheSettings(memoryCacheSettings {})
-            }
-        }
-    }
+class MainActivity : AppCompatActivity() {
+    private var navController: NavController? = null
+    private lateinit var db: FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
+        enableEdgeToEdge()
+        setContentView(R.layout.activity_main)
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentSessionsRecyclerViewBinding.inflate(inflater, container, false)
-        return binding.root
-    }
+        db = FirebaseFirestore.getInstance()
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        viewModel = androidx.lifecycle.ViewModelProvider(requireActivity())[SessionListViewModel::class.java]
-
-        sessionsAdapter = SessionsAdapter(emptyList())
-        sessionsAdapter.listener = object : SessionsViewHolder.OnItemClickListener {
-            override fun onItemClick(session: Session) {
-                val action = SessionsFragmentListDirections
-                    .actionSessionsFragmentListToDetailsFragment(session.id)
-                findNavController().navigate(action)
-            }
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
         }
 
-        binding.sessionsRecyclerView.adapter = sessionsAdapter
+        val toolbar: Toolbar = findViewById(R.id.main_toolbar)
+        toolbar.setBackgroundColor(Color.parseColor("#333333"))
+        setSupportActionBar(toolbar)
 
-        sessionDao.getAll().observe(viewLifecycleOwner) { sessions ->
-            viewModel.setSessions(sessions)
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.main_nav_host) as? NavHostFragment
+        navController = navHostFragment?.navController
 
-            if (sessions.isEmpty()) {
-                setLoadingState(true)
-                refreshSessionsFromFirestore(showLoading = true)
-            } else {
-                setLoadingState(false)
-                refreshSessionsFromFirestore(showLoading = false)
-            }
+        navController?.let {
+            NavigationUI.setupActionBarWithNavController(this, it)
         }
 
-        viewModel.sessions.observe(viewLifecycleOwner) { sessions ->
-            sessionsAdapter.set(sessions)
-            sessionsAdapter.notifyDataSetChanged()
-        }
+        val bottomNavigationView: BottomNavigationView = findViewById(R.id.bottom_bar)
+        navController?.let { NavigationUI.setupWithNavController(bottomNavigationView, it) }
     }
 
-    private fun refreshSessionsFromFirestore(showLoading: Boolean) {
-        if (showLoading) setLoadingState(true)
-
-        firestoreDb.collection("sessions").get()
-            .addOnSuccessListener { snapshot ->
-                val sessions = snapshot.toObjects(Session::class.java)
-                lifecycleScope.launch(Dispatchers.IO) {
-                    sessionDao.deleteAll()
-                    sessionDao.insertAll(sessions)
-                    Log.d("SessionsFragmentList", "Synced ${sessions.size} sessions from Firestore")
-
-                    if (showLoading) {
-                        withContext(Dispatchers.Main) {
-                            setLoadingState(false)
-                        }
-                    }
-                }
-            }
-            .addOnFailureListener { e ->
-                Log.e("SessionsFragmentList", "Firestore error", e)
-                if (showLoading) {
-                    Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_LONG).show()
-                    setLoadingState(false)
-                }
-            }
-    }
-
-    private fun setLoadingState(isLoading: Boolean) {
-        binding.apply {
-            progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-            sessionsRecyclerView.visibility = if (isLoading) View.GONE else View.VISIBLE
-        }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.bar_menu, menu)
-        super.onCreateOptionsMenu(menu, inflater)
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.bar_menu, menu)
+        return super.onCreateOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.profileFragment -> {
-                findNavController().navigate(R.id.profileFragment)
+            android.R.id.home -> {
+                navController?.popBackStack()
                 true
             }
-            else -> super.onOptionsItemSelected(item)
+            else -> navController?.let { NavigationUI.onNavDestinationSelected(item, it) }
+                ?: super.onOptionsItemSelected(item)
         }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }
