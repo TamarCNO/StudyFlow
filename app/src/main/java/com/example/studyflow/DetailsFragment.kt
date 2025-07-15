@@ -46,7 +46,6 @@ class DetailsFragment : Fragment() {
         viewModel = ViewModelProvider(requireActivity())[SessionListViewModel::class.java]
         binding.progressBar.visibility = View.VISIBLE
 
-        // ננסה למצוא את ה-Session מה-ViewModel
         viewModel.sessions.observe(viewLifecycleOwner) { sessions ->
             val session = sessions.find { it.id == args.sessionId }
             if (session != null) {
@@ -54,7 +53,6 @@ class DetailsFragment : Fragment() {
                 fillUI(session)
                 binding.progressBar.visibility = View.GONE
             } else {
-                // לא נמצא ב-ViewModel → נטען מ-Room או Firestore
                 loadFromLocalOrRemote(args.sessionId)
             }
         }
@@ -87,7 +85,6 @@ class DetailsFragment : Fragment() {
                     currentSession = session
                     fillUI(session)
 
-                    // נכניס אותו ל-ROOM ולעדכון ה-ViewModel
                     dbExecutor.execute {
                         sessionDao.insert(session)
                     }

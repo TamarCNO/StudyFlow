@@ -1,18 +1,14 @@
-<menu
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/MapFragment"
+        android:id="@+id/mapFragment"
         android:icon="@drawable/map_icon"
         android:title="Map"
         app:showAsAction="ifRoom" />
-
     <item
         android:id="@+id/addSessionFragment"
         android:icon="@android:drawable/ic_input_add"
         android:title="Add Session"
-        app:showAsAction="ifRoom"
-        />
-
+        app:showAsAction="ifRoom" />
 </menu>

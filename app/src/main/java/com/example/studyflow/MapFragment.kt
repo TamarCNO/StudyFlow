@@ -52,12 +52,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
         // אתחול LocationManager
         locationManager = requireActivity().getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
-        // אתחול מפת גוגל
         val mapFragment = childFragmentManager
             .findFragmentById(R.id.mapFragment) as SupportMapFragment
-        mapFragment.getMapAsync(this) // קבלת קריאה חוזרת כשהמפה מוכנה
+        mapFragment.getMapAsync(this)
 
-        // הגדרת לחיצות כפתורי זום מותאמים אישית
         binding.plusButton.setOnClickListener {
             mMap.animateCamera(CameraUpdateFactory.zoomIn())
         }
@@ -76,7 +74,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, LocationListener {
         // בדוק הרשאת מיקום וטפל בה
         checkLocationPermission()
 
-        sessionDao.getAll().observe(viewLifecycleOwner) { sessions -> // <--- FIX: Changed from getAllSessions() to getAll()
+        sessionDao.getAll().observe(viewLifecycleOwner) { sessions ->
             updateMapWithSessions(sessions)
         }
 

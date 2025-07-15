@@ -10,7 +10,7 @@ class Model private constructor() {
     }
 
     private val firebaseModel = FirebaseModel()
-    private val cloudinaryModel = CloudinaryModel()
+    private val cloudinaryModel = CloudinaryModel.getInstance()
 
     fun getAllSessions(callback: (List<Session>) -> Unit) {
         firebaseModel.getAllSessions(callback)

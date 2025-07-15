@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.studyflow.adapter.SessionsAdapter
 import com.example.studyflow.adapter.SessionsViewHolder
 import com.example.studyflow.databinding.FragmentSessionsRecyclerViewBinding
@@ -54,6 +55,8 @@ class SessionsFragmentList : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         viewModel = androidx.lifecycle.ViewModelProvider(requireActivity())[SessionListViewModel::class.java]
+
+        binding.sessionsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         sessionsAdapter = SessionsAdapter(emptyList())
         sessionsAdapter.listener = object : SessionsViewHolder.OnItemClickListener {
@@ -105,14 +108,16 @@ class SessionsFragmentList : Fragment() {
             .addOnFailureListener { e ->
                 Log.e("SessionsFragmentList", "Firestore error", e)
                 if (showLoading) {
-                    Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_LONG).show()
-                    setLoadingState(false)
+                    lifecycleScope.launch(Dispatchers.Main) {
+                        Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_LONG).show()
+                        setLoadingState(false)
+                    }
                 }
             }
     }
 
     private fun setLoadingState(isLoading: Boolean) {
-        binding.apply {
+        _binding?.apply {
             progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
             sessionsRecyclerView.visibility = if (isLoading) View.GONE else View.VISIBLE
         }
@@ -127,6 +132,10 @@ class SessionsFragmentList : Fragment() {
         return when (item.itemId) {
             R.id.profileFragment -> {
                 findNavController().navigate(R.id.profileFragment)
+                true
+            }
+            R.id.mapFragment -> {
+                findNavController().navigate(R.id.action_sessionsFragmentList_to_mapFragment)
                 true
             }
             else -> super.onOptionsItemSelected(item)

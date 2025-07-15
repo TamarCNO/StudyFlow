@@ -11,6 +11,26 @@ import java.io.FileOutputStream
 
 class CloudinaryModel {
 
+    companion object {
+        @Volatile
+        private var INSTANCE: CloudinaryModel? = null
+
+        fun getInstance(): CloudinaryModel {
+            return INSTANCE ?: synchronized(this) {
+                INSTANCE ?: CloudinaryModel().also { INSTANCE = it }
+            }
+        }
+    }
+
+    private fun isMediaManagerInitialized(): Boolean {
+        return try {
+            MediaManager.get()
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     fun uploadBitmap(bitmap: Bitmap, onSuccess: (String) -> Unit, onError: (String) -> Unit) {
         val context = MyApplication.Globals.appContext ?: run {
             onError("Application context is null, cannot upload.")
@@ -19,23 +39,27 @@ class CloudinaryModel {
 
         val file = bitmapToFile(bitmap, context)
 
-        MediaManager.get().upload(file.path)
-            .option("folder", "images")
-            .callback(object : UploadCallback {
-                override fun onStart(requestId: String) {}
-                override fun onProgress(requestId: String, bytes: Long, totalBytes: Long) {}
-                override fun onSuccess(requestId: String, resultData: Map<*, *>) {
-                    val publicUrl = resultData["secure_url"] as? String ?: ""
-                    onSuccess(publicUrl)
-                }
+        try {
+            MediaManager.get().upload(file.path)
+                .option("folder", "images")
+                .callback(object : UploadCallback {
+                    override fun onStart(requestId: String) {}
+                    override fun onProgress(requestId: String, bytes: Long, totalBytes: Long) {}
+                    override fun onSuccess(requestId: String, resultData: Map<*, *>) {
+                        val publicUrl = resultData["secure_url"] as? String ?: ""
+                        onSuccess(publicUrl)
+                    }
 
-                override fun onError(requestId: String?, error: ErrorInfo?) {
-                    onError(error?.description ?: "Unknown error")
-                }
+                    override fun onError(requestId: String?, error: ErrorInfo?) {
+                        onError(error?.description ?: "Unknown error")
+                    }
 
-                override fun onReschedule(requestId: String?, error: ErrorInfo?) {}
-            })
-            .dispatch()
+                    override fun onReschedule(requestId: String?, error: ErrorInfo?) {}
+                })
+                .dispatch()
+        } catch (e: Exception) {
+            onError("MediaManager error: ${e.message}")
+        }
     }
 
     fun bitmapToFile(bitmap: Bitmap, context: Context): File {

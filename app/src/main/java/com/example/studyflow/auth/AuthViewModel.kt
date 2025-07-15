@@ -2,16 +2,17 @@ package com.example.studyflow.auth
 
 import android.graphics.Bitmap
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.studyflow.model.CloudinaryModel
+import com.example.studyflow.model.UserProfile
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
@@ -20,10 +21,14 @@ import kotlin.coroutines.resumeWithException
 class AuthViewModel : ViewModel() {
 
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
-    private val cloudinaryModel: CloudinaryModel
+    private val cloudinaryModel: CloudinaryModel = CloudinaryModel.getInstance()
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 
     private val _user = MutableLiveData<FirebaseUser?>()
     val user: LiveData<FirebaseUser?> = _user
+
+    private val _userProfile = MutableLiveData<UserProfile?>()
+    val userProfile: LiveData<UserProfile?> = _userProfile
 
     private val _errorMessage = MutableLiveData<String?>()
     val errorMessage: LiveData<String?> = _errorMessage
@@ -32,11 +37,9 @@ class AuthViewModel : ViewModel() {
     val loading: LiveData<Boolean> = _loading
 
     init {
-        cloudinaryModel = CloudinaryModel()
         _user.value = auth.currentUser
         auth.addAuthStateListener { firebaseAuth ->
             _user.value = firebaseAuth.currentUser
-            Log.d("AuthViewModel", "Auth state changed. Current user: ${firebaseAuth.currentUser?.email}")
         }
     }
 
@@ -77,6 +80,7 @@ class AuthViewModel : ViewModel() {
                 _loading.value = false
                 if (task.isSuccessful) {
                     _user.value = auth.currentUser
+                    fetchUserProfile()
                     onSuccess?.invoke()
                 } else {
                     val message = task.exception?.message ?: "Login failed. Please check your credentials."
@@ -87,6 +91,8 @@ class AuthViewModel : ViewModel() {
 
     fun logout() {
         auth.signOut()
+        _user.value = null
+        _userProfile.value = null
     }
 
     fun updateProfile(
@@ -115,6 +121,7 @@ class AuthViewModel : ViewModel() {
                 } else {
                     user.photoUrl?.toString()
                 }
+
                 if (email != user.email) {
                     suspendCancellableCoroutine<Unit> { continuation ->
                         user.updateEmail(email)
@@ -127,11 +134,13 @@ class AuthViewModel : ViewModel() {
                             }
                     }
                 }
+
                 val fullName = "$firstName $lastName".trim()
                 val profileUpdates = UserProfileChangeRequest.Builder()
                     .setDisplayName(fullName)
                     .setPhotoUri(photoUrl?.let { Uri.parse(it) })
                     .build()
+
                 suspendCancellableCoroutine<Unit> { continuation ->
                     user.updateProfile(profileUpdates)
                         .addOnCompleteListener { task ->
@@ -143,13 +152,46 @@ class AuthViewModel : ViewModel() {
                             }
                         }
                 }
-                onSuccess()
+
+                val updatedProfile = UserProfile(
+                    uid = user.uid,
+                    firstName = firstName,
+                    lastName = lastName,
+                    email = email,
+                    photoUrl = photoUrl
+                )
+
+                firestore.collection("user_profiles")
+                    .document(user.uid)
+                    .set(updatedProfile)
+                    .addOnSuccessListener {
+                        _userProfile.value = updatedProfile
+                        onSuccess()
+                    }
+                    .addOnFailureListener { e ->
+                        _errorMessage.value = e.message ?: "Failed to save user profile."
+                    }
+
             } catch (e: Exception) {
                 _errorMessage.value = e.message ?: "Failed to update profile."
             } finally {
                 _loading.value = false
             }
         }
+    }
+
+    fun fetchUserProfile() {
+        val uid = auth.currentUser?.uid ?: return
+        firestore.collection("user_profiles")
+            .document(uid)
+            .get()
+            .addOnSuccessListener { document ->
+                val profile = document.toObject(UserProfile::class.java)
+                _userProfile.value = profile
+            }
+            .addOnFailureListener { e ->
+                _errorMessage.value = e.message ?: "Failed to load profile."
+            }
     }
 
     fun clearError() {

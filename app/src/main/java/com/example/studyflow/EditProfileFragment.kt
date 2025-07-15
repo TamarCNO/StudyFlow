@@ -1,34 +1,32 @@
-package com.example.studyflow
+package com.example.studyflow.profile
 
+import android.app.Activity
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
-import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.findNavController
+import androidx.fragment.app.viewModels
 import com.example.studyflow.auth.AuthViewModel
 import com.example.studyflow.databinding.FragmentEditProfileBinding
 import com.squareup.picasso.Picasso
+import java.io.IOException
 
 class EditProfileFragment : Fragment() {
 
     private var _binding: FragmentEditProfileBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var authViewModel: AuthViewModel
+    private val authViewModel: AuthViewModel by viewModels()
 
     private var selectedImageBitmap: Bitmap? = null
-    private var selectedImageUri: Uri? = null
-
-    private lateinit var pickImageLauncher: ActivityResultLauncher<String>
-    private lateinit var takePictureLauncher: ActivityResultLauncher<Void?>
+    private val pickImageRequestCode = 101
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -41,115 +39,79 @@ class EditProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        authViewModel = ViewModelProvider(requireActivity()).get(AuthViewModel::class.java)
-
-        loadUserData()
-        setupObservers()
-
-        pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-            uri?.let {
-                selectedImageUri = it
-                selectedImageBitmap = uriToBitmap(it)
-                Picasso.get().load(it).into(binding.profileImageView)
+        authViewModel.userProfile.observe(viewLifecycleOwner) { profile ->
+            profile?.let {
+                binding.inputFirstName.setText(it.firstName)
+                binding.inputLastName.setText(it.lastName)
+                binding.inputEmail.setText(it.email)
+                if (!it.photoUrl.isNullOrBlank()) {
+                    Picasso.get().load(it.photoUrl).into(binding.profileImageView)
+                }
             }
         }
 
-        takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap: Bitmap? ->
-            bitmap?.let {
-                selectedImageBitmap = it
-                selectedImageUri = null
-                binding.profileImageView.setImageBitmap(it)
+        authViewModel.errorMessage.observe(viewLifecycleOwner) { error ->
+            error?.let {
+                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+                authViewModel.clearError()
             }
         }
 
-        binding.cameraIcon.setOnClickListener {
-            showImageSourceOptions()
+        authViewModel.loading.observe(viewLifecycleOwner) { isLoading ->
+            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+            binding.buttonSave.isEnabled = !isLoading
         }
 
         binding.buttonSave.setOnClickListener {
             val firstName = binding.inputFirstName.text.toString().trim()
             val lastName = binding.inputLastName.text.toString().trim()
             val email = binding.inputEmail.text.toString().trim()
-
             if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty()) {
-                Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-
-            authViewModel.updateProfile(firstName, lastName, email, selectedImageBitmap) {
-                Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show()
-                clearSelectedImage()
-                findNavController().navigate(R.id.action_editProfileFragment_to_profileFragment)
-            }
+            authViewModel.updateProfile(
+                firstName = firstName,
+                lastName = lastName,
+                email = email,
+                selectedImageBitmap = selectedImageBitmap,
+                onSuccess = {
+                    Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show()
+                }
+            )
         }
 
         binding.buttonCancel.setOnClickListener {
-            findNavController().navigateUp()
+            requireActivity().onBackPressedDispatcher.onBackPressed()
         }
+
+        val openGallery = {
+            val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+            startActivityForResult(intent, pickImageRequestCode)
+        }
+
+        binding.profileImageView.setOnClickListener { openGallery() }
+        binding.cameraIcon.setOnClickListener { openGallery() }
+
+        authViewModel.fetchUserProfile()
     }
 
-    private fun setupObservers() {
-        authViewModel.loading.observe(viewLifecycleOwner) { isLoading ->
-            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-            binding.buttonSave.isEnabled = !isLoading
-        }
-
-        authViewModel.errorMessage.observe(viewLifecycleOwner) { errorMessage ->
-            errorMessage?.let {
-                Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
-                authViewModel.clearError()
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == pickImageRequestCode && resultCode == Activity.RESULT_OK && data?.data != null) {
+            val imageUri = data.data
+            try {
+                selectedImageBitmap = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+                    MediaStore.Images.Media.getBitmap(requireContext().contentResolver, imageUri)
+                } else {
+                    val source = ImageDecoder.createSource(requireContext().contentResolver, imageUri!!)
+                    ImageDecoder.decodeBitmap(source)
+                }
+                binding.profileImageView.setImageBitmap(selectedImageBitmap)
+            } catch (e: IOException) {
+                Toast.makeText(requireContext(), "Image load failed", Toast.LENGTH_SHORT).show()
             }
         }
-    }
-
-    private fun showImageSourceOptions() {
-        val options = arrayOf("Take Photo", "Choose from Gallery")
-        val builder = android.app.AlertDialog.Builder(requireContext())
-        builder.setTitle("Select Image Source")
-        builder.setItems(options) { _, which ->
-            when (which) {
-                0 -> takePictureLauncher.launch(null)
-                1 -> pickImageLauncher.launch("image/*")
-            }
-        }
-        builder.show()
-    }
-
-    private fun loadUserData() {
-        authViewModel.user.value?.let { user ->
-            binding.inputEmail.setText(user.email ?: "")
-
-            val displayName = user.displayName ?: ""
-            if (displayName.contains(" ")) {
-                val parts = displayName.split(" ")
-                binding.inputFirstName.setText(parts.getOrNull(0) ?: "")
-                binding.inputLastName.setText(parts.getOrNull(1) ?: "")
-            } else {
-                binding.inputFirstName.setText(displayName)
-                binding.inputLastName.setText("")
-            }
-
-            user.photoUrl?.let {
-                Picasso.get().load(it).into(binding.profileImageView)
-            }
-        } ?: run {
-            Toast.makeText(requireContext(), "User not logged in", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun uriToBitmap(uri: Uri): Bitmap? {
-        return try {
-            val source = ImageDecoder.createSource(requireContext().contentResolver, uri)
-            ImageDecoder.decodeBitmap(source)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
-    }
-
-    private fun clearSelectedImage() {
-        selectedImageBitmap = null
-        selectedImageUri = null
     }
 
     override fun onDestroyView() {

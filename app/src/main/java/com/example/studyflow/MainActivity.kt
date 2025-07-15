@@ -1,60 +1,66 @@
 package com.example.studyflow
 
-import android.graphics.Color
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.example.studyflow.databinding.ActivityMainBinding
 import com.google.firebase.firestore.FirebaseFirestore
 
 class MainActivity : AppCompatActivity() {
-    private var navController: NavController? = null
+    private lateinit var binding: ActivityMainBinding
+    private lateinit var navController: androidx.navigation.NavController
     private lateinit var db: FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
+
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         db = FirebaseFirestore.getInstance()
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
 
-        val toolbar: Toolbar = findViewById(R.id.main_toolbar)
-        toolbar.setBackgroundColor(Color.parseColor("#333333"))
-        setSupportActionBar(toolbar)
+        setSupportActionBar(binding.mainToolbar)
 
-        val navHostFragment =
-            supportFragmentManager.findFragmentById(R.id.main_nav_host) as? NavHostFragment
-        navController = navHostFragment?.navController
+        val navHostFragment = supportFragmentManager
+            .findFragmentById(binding.mainNavHost.id) as NavHostFragment
+        navController = navHostFragment.navController
 
-        navController?.let {
-            NavigationUI.setupActionBarWithNavController(this, it)
+        NavigationUI.setupActionBarWithNavController(this, navController)
+        NavigationUI.setupWithNavController(binding.bottomBar, navController)
+
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            binding.bottomBar.visibility = if (destination.id == R.id.sessionsFragmentList) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
         }
+    }
 
-        val bottomNavigationView: BottomNavigationView = findViewById(R.id.bottom_bar)
-        navController?.let { NavigationUI.setupWithNavController(bottomNavigationView, it) }
+    override fun onSupportNavigateUp(): Boolean {
+        return navController.navigateUp() || super.onSupportNavigateUp()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
-                navController?.popBackStack()
+                navController.popBackStack()
                 true
             }
-            else -> navController?.let { NavigationUI.onNavDestinationSelected(item, it) }
-                ?: super.onOptionsItemSelected(item)
+            else -> super.onOptionsItemSelected(item)
         }
     }
 }

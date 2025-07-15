@@ -13,6 +13,7 @@ import androidx.navigation.fragment.findNavController
 import com.example.studyflow.databinding.FragmentAddSessionBinding
 import com.example.studyflow.model.Model
 import com.example.studyflow.model.Session
+import java.util.UUID
 
 class AddSessionFragment : Fragment() {
 
@@ -67,7 +68,7 @@ class AddSessionFragment : Fragment() {
         }
 
         val newSession = Session(
-            id = "",
+            id = UUID.randomUUID().toString(),
             topic = topic,
             date = date,
             time = time,

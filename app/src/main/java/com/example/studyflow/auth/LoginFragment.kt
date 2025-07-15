@@ -40,7 +40,7 @@ class LoginFragment : Fragment() {
 
             viewModel.login(email, password) {
                 Toast.makeText(requireContext(), "Login successful!", Toast.LENGTH_SHORT).show()
-                findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToSessionsFragmentList())
+                // Navigation is handled by the user observer below
             }
         }
 
@@ -68,8 +68,16 @@ class LoginFragment : Fragment() {
         }
 
         viewModel.user.observe(viewLifecycleOwner) { user ->
-            if (user != null && findNavController().currentDestination?.id == R.id.loginFragment) {
-                findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToSessionsFragmentList())
+            if (user != null) {
+                val currentDestination = findNavController().currentDestination
+                if (currentDestination?.id == R.id.loginFragment) {
+                    try {
+                        findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToSessionsFragmentList())
+                    } catch (e: Exception) {
+                        // Navigation might fail if already navigating or fragment is destroyed
+                        android.util.Log.w("LoginFragment", "Navigation failed: ${e.message}")
+                    }
+                }
             }
         }
     }

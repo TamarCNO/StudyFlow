@@ -132,7 +132,6 @@ class EditSessionFragment : Fragment() {
             time = time,
             status = status,
             studentEmail = studentEmail
-            // שים לב: אם רוצים לשנות תמונה - צריך לטפל בנפרד
         ) ?: Session(
             id = args.sessionId,
             topic = topic,
@@ -140,7 +139,7 @@ class EditSessionFragment : Fragment() {
             time = time,
             status = status,
             studentEmail = studentEmail,
-            materialImageUrl = "" // או args.materialImageUrl לפי מה שרלוונטי
+            materialImageUrl = ""
         )
 
         dbExecutor.execute {

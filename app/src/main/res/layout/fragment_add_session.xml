@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/addSessionLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -194,26 +195,14 @@
                 app:layout_constraintEnd_toEndOf="@id/sessionImageView"
                 android:layout_margin="8dp"/>
 
-            <TextView
-                android:id="@+id/imageStorageLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Image Storage Option:"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:layout_marginTop="16dp"
-                app:layout_constraintTop_toBottomOf="@id/sessionImageView"
-                app:layout_constraintStart_toStartOf="parent"/>
-
             <Button
                 android:id="@+id/saveSessionButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
                 android:text="Save Session"
-                app:layout_constraintTop_toBottomOf="@id/imageStorageLabel"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
+                tools:layout_editor_absoluteY="759dp" />
 
             <ProgressBar
                 android:id="@+id/progressBar"
