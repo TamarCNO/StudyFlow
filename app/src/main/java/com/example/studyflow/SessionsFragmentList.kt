@@ -1,6 +1,6 @@
 package com.example.studyflow
 
-import SessionListViewModel
+import com.example.studyflow.SessionListViewModel
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -38,6 +38,24 @@ class SessionsFragmentList : Fragment() {
         }
     }
 
+    // ✅ מנגנון בקרת סנכרון מתקדם
+    private val sharedPref by lazy {
+        requireContext().getSharedPreferences("sync_prefs", android.content.Context.MODE_PRIVATE)
+    }
+
+    // ✅ דגל למניעת סנכרון כפול
+    private var isSyncing = false
+
+    // ✅ דגל לבדיקה אם זה הטעינה הראשונה
+    private var isFirstLoad = true
+
+    companion object {
+        private const val LAST_SYNC_KEY = "last_sync_timestamp"
+        private const val SYNC_INTERVAL_MS = 10 * 60 * 1000L // 10 דקות
+        private const val FORCE_SYNC_INTERVAL_MS = 60 * 60 * 1000L // שעה
+        private const val CACHE_VALIDITY_MS = 5 * 60 * 1000L // 5 דקות
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -56,6 +74,13 @@ class SessionsFragmentList : Fragment() {
 
         viewModel = androidx.lifecycle.ViewModelProvider(requireActivity())[SessionListViewModel::class.java]
 
+        setupRecyclerView()
+        observeLocalData()
+        observeViewModel()
+    }
+
+    // ✅ הגדרת RecyclerView
+    private fun setupRecyclerView() {
         binding.sessionsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         sessionsAdapter = SessionsAdapter(emptyList())
@@ -68,52 +93,141 @@ class SessionsFragmentList : Fragment() {
         }
 
         binding.sessionsRecyclerView.adapter = sessionsAdapter
+    }
 
+    // ✅ צפייה בנתונים מקומיים
+    private fun observeLocalData() {
         sessionDao.getAll().observe(viewLifecycleOwner) { sessions ->
             viewModel.setSessions(sessions)
 
-            if (sessions.isEmpty()) {
-                setLoadingState(true)
-                refreshSessionsFromFirestore(showLoading = true)
-            } else {
-                setLoadingState(false)
-                refreshSessionsFromFirestore(showLoading = false)
+            // רק בטעינה הראשונה נבדוק סנכרון
+            if (isFirstLoad) {
+                isFirstLoad = false
+
+                if (sessions.isEmpty()) {
+                    // אין נתונים מקומיים - סנכרון מיידי
+                    Log.d("SessionsFragmentList", "No local data - syncing immediately")
+                    performSync(showLoading = true, forceSync = true)
+                } else {
+                    // יש נתונים מקומיים - בדיקה חכמה
+                    Log.d("SessionsFragmentList", "Local data exists - checking if sync needed")
+                    checkAndSyncIfNeeded()
+                }
             }
         }
+    }
 
+    // ✅ צפייה ב-ViewModel
+    private fun observeViewModel() {
         viewModel.sessions.observe(viewLifecycleOwner) { sessions ->
             sessionsAdapter.set(sessions)
             sessionsAdapter.notifyDataSetChanged()
         }
     }
 
-    private fun refreshSessionsFromFirestore(showLoading: Boolean) {
+    // ✅ בדיקה חכמה אם צריך סנכרון
+    private fun checkAndSyncIfNeeded() {
+        if (isSyncing) {
+            Log.d("SessionsFragmentList", "Already syncing - skipping")
+            return
+        }
+
+        val lastSync = sharedPref.getLong(LAST_SYNC_KEY, 0)
+        val currentTime = System.currentTimeMillis()
+        val timeSinceLastSync = currentTime - lastSync
+
+        Log.d("SessionsFragmentList", "Time since last sync: ${timeSinceLastSync / 1000} seconds")
+
+        when {
+            lastSync == 0L -> {
+                Log.d("SessionsFragmentList", "Never synced - performing initial sync")
+                performSync(showLoading = false, forceSync = true)
+            }
+            timeSinceLastSync > FORCE_SYNC_INTERVAL_MS -> {
+                Log.d("SessionsFragmentList", "Force sync needed - too much time passed")
+                performSync(showLoading = false, forceSync = true)
+            }
+            timeSinceLastSync > SYNC_INTERVAL_MS -> {
+                Log.d("SessionsFragmentList", "Regular background sync")
+                performSync(showLoading = false, forceSync = false)
+            }
+            else -> {
+                Log.d("SessionsFragmentList", "Sync not needed - recent sync available")
+            }
+        }
+    }
+
+    private fun performSync(showLoading: Boolean, forceSync: Boolean = false) {
+        if (isSyncing) {
+            Log.d("SessionsFragmentList", "Sync already in progress")
+            return
+        }
+
+        val lastSync = sharedPref.getLong(LAST_SYNC_KEY, 0)
+        val currentTime = System.currentTimeMillis()
+
+        if (!forceSync && currentTime - lastSync < CACHE_VALIDITY_MS) {
+            Log.d("SessionsFragmentList", "Sync skipped - cache still valid")
+            if (showLoading) setLoadingState(false)
+            return
+        }
+
+        isSyncing = true
         if (showLoading) setLoadingState(true)
 
-        firestoreDb.collection("sessions").get()
-            .addOnSuccessListener { snapshot ->
-                val sessions = snapshot.toObjects(Session::class.java)
-                lifecycleScope.launch(Dispatchers.IO) {
-                    sessionDao.deleteAll()
-                    sessionDao.insertAll(sessions)
-                    Log.d("SessionsFragmentList", "Synced ${sessions.size} sessions from Firestore")
+        Log.d("SessionsFragmentList", "Starting Firestore sync (force: $forceSync)")
 
-                    if (showLoading) {
-                        withContext(Dispatchers.Main) {
-                            setLoadingState(false)
-                        }
-                    }
-                }
+        firestoreDb.collection("sessions")
+            .get()
+            .addOnSuccessListener { snapshot ->
+                handleSyncSuccess(snapshot.toObjects(Session::class.java), showLoading)
             }
             .addOnFailureListener { e ->
-                Log.e("SessionsFragmentList", "Firestore error", e)
-                if (showLoading) {
-                    lifecycleScope.launch(Dispatchers.Main) {
-                        Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_LONG).show()
-                        setLoadingState(false)
-                    }
+                handleSyncFailure(e, showLoading)
+            }
+    }
+
+    private fun handleSyncSuccess(sessions: List<Session>, showLoading: Boolean) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                sessionDao.deleteAll()
+                sessionDao.insertAll(sessions)
+
+                sharedPref.edit()
+                    .putLong(LAST_SYNC_KEY, System.currentTimeMillis())
+                    .apply()
+
+                Log.d("SessionsFragmentList", "Successfully synced ${sessions.size} sessions")
+
+                withContext(Dispatchers.Main) {
+                    isSyncing = false
+                    if (showLoading) setLoadingState(false)
+                }
+            } catch (e: Exception) {
+                Log.e("SessionsFragmentList", "Error saving to local DB", e)
+                withContext(Dispatchers.Main) {
+                    isSyncing = false
+                    if (showLoading) setLoadingState(false)
+                    showErrorToast("Failed to save data locally")
                 }
             }
+        }
+    }
+
+    private fun handleSyncFailure(error: Exception, showLoading: Boolean) {
+        Log.e("SessionsFragmentList", "Firestore sync failed", error)
+
+        lifecycleScope.launch(Dispatchers.Main) {
+            isSyncing = false
+            if (showLoading) {
+                setLoadingState(false)
+                showErrorToast("Sync failed: ${error.message}")
+            }
+        }
+    }
+
+    private fun showErrorToast(message: String) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
 
     private fun setLoadingState(isLoading: Boolean) {
@@ -121,6 +235,16 @@ class SessionsFragmentList : Fragment() {
             progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
             sessionsRecyclerView.visibility = if (isLoading) View.GONE else View.VISIBLE
         }
+    }
+
+    private fun manualRefresh() {
+        if (isSyncing) {
+            Toast.makeText(requireContext(), "Sync already in progress", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        Log.d("SessionsFragmentList", "Manual refresh triggered")
+        performSync(showLoading = true, forceSync = true)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -144,6 +268,13 @@ class SessionsFragmentList : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        isSyncing = false
         _binding = null
+    }
+
+
+    private fun clearSyncCache() {
+        sharedPref.edit().remove(LAST_SYNC_KEY).apply()
+        Log.d("SessionsFragmentList", "Sync cache cleared")
     }
 }

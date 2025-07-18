@@ -23,7 +23,7 @@ class SignUpFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: AuthViewModel by viewModels()
-    private val cloudinaryModel = CloudinaryModel()
+    private val cloudinaryModel = CloudinaryModel.getInstance()
 
     private var capturedImageBitmap: Bitmap? = null
 

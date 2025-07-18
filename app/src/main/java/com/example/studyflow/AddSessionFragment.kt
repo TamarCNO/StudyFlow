@@ -5,14 +5,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 import com.example.studyflow.databinding.FragmentAddSessionBinding
 import com.example.studyflow.model.Model
 import com.example.studyflow.model.Session
+import android.content.pm.PackageManager
+import java.util.Calendar
 import java.util.UUID
 
 class AddSessionFragment : Fragment() {
@@ -22,6 +25,17 @@ class AddSessionFragment : Fragment() {
 
     private lateinit var takePictureLauncher: ActivityResultLauncher<Void?>
     private var selectedImageBitmap: Bitmap? = null
+
+    private var selectedDate: String = ""
+    private var selectedTime: String = ""
+
+    private val requestCameraPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        if (isGranted) {
+            takePictureLauncher.launch(null)
+        } else {
+            Toast.makeText(requireContext(), "Camera permission denied", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,12 +60,54 @@ class AddSessionFragment : Fragment() {
         setLoadingState(false)
 
         binding.saveSessionButton.setOnClickListener { onSaveClicked() }
-        binding.editMaterialImageButton.setOnClickListener { takePictureLauncher.launch(null) }
+        binding.editMaterialImageButton.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                takePictureLauncher.launch(null)
+            } else {
+                requestCameraPermissionLauncher.launch(android.Manifest.permission.CAMERA)
+            }
+        }
+
+        binding.sessionDateEditText.setOnClickListener {
+            showDatePicker()
+        }
+        binding.sessionTimeEditText.setOnClickListener {
+            showTimePicker()
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun showDatePicker() {
+        val c = Calendar.getInstance()
+        val year = c.get(Calendar.YEAR)
+        val month = c.get(Calendar.MONTH)
+        val day = c.get(Calendar.DAY_OF_MONTH)
+
+        val datePickerDialog = android.app.DatePickerDialog(requireContext(),
+            { _, selectedYear, selectedMonth, selectedDay ->
+                selectedDate = "${selectedDay}/${selectedMonth + 1}/$selectedYear"
+                binding.sessionDateEditText.setText(selectedDate)
+            }, year, month, day)
+
+        datePickerDialog.show()
+    }
+
+    private fun showTimePicker() {
+        val c = Calendar.getInstance()
+        val hour = c.get(Calendar.HOUR_OF_DAY)
+        val minute = c.get(Calendar.MINUTE)
+
+        val timePickerDialog = android.app.TimePickerDialog(requireContext(),
+            { _, selectedHour, selectedMinute ->
+                selectedTime = String.format("%02d:%02d", selectedHour, selectedMinute)
+                binding.sessionTimeEditText.setText(selectedTime)
+            }, hour, minute, true)
+
+        timePickerDialog.show()
     }
 
     private fun onSaveClicked() {

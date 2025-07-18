@@ -10,11 +10,9 @@ import java.io.File
 import java.io.FileOutputStream
 
 class CloudinaryModel {
-
     companion object {
         @Volatile
         private var INSTANCE: CloudinaryModel? = null
-
         fun getInstance(): CloudinaryModel {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: CloudinaryModel().also { INSTANCE = it }
@@ -40,11 +38,15 @@ class CloudinaryModel {
         val file = bitmapToFile(bitmap, context)
 
         try {
-            MediaManager.get().upload(file.path)
+            MediaManager.get()
+                .upload(file.path)
+                .unsigned("your_upload_preset_name")
                 .option("folder", "images")
                 .callback(object : UploadCallback {
                     override fun onStart(requestId: String) {}
+
                     override fun onProgress(requestId: String, bytes: Long, totalBytes: Long) {}
+
                     override fun onSuccess(requestId: String, resultData: Map<*, *>) {
                         val publicUrl = resultData["secure_url"] as? String ?: ""
                         onSuccess(publicUrl)

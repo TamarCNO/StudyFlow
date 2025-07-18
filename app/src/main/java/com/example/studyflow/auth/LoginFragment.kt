@@ -39,8 +39,8 @@ class LoginFragment : Fragment() {
             }
 
             viewModel.login(email, password) {
+                if (!isAdded) return@login
                 Toast.makeText(requireContext(), "Login successful!", Toast.LENGTH_SHORT).show()
-                // Navigation is handled by the user observer below
             }
         }
 

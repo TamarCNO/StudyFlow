@@ -4,7 +4,6 @@ import android.graphics.Bitmap
 import android.util.Log
 
 class Model private constructor() {
-
     companion object {
         val shared = Model()
     }
@@ -24,8 +23,8 @@ class Model private constructor() {
         } else {
             cloudinaryModel.uploadBitmap(image,
                 onSuccess = { imageUrl ->
-                    val updatedSession = session.copy(materialImageUrl = imageUrl)
-                    firebaseModel.add(updatedSession) {
+                    session.materialImageUrl = imageUrl
+                    firebaseModel.add(session) {
                         callback(true)
                     }
                 },

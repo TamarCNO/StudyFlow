@@ -51,7 +51,7 @@ class ProfileFragment : Fragment() {
         binding.buttonLogout.setOnClickListener {
             authViewModel.logout()
             Toast.makeText(requireContext(), "Logged out successfully", Toast.LENGTH_SHORT).show()
-            findNavController().navigate(R.id.action_profileFragment_to_loginFragment)
+            findNavController().navigate(R.id.loginFragment)
         }
     }
 

@@ -49,7 +49,6 @@ class EditSessionFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // אתחול שדות UI
         topicEditText = view.findViewById(R.id.sessionTopicEditText)
         dateEditText = view.findViewById(R.id.sessionDateEditText)
         timeEditText = view.findViewById(R.id.sessionTimeEditText)
@@ -111,8 +110,9 @@ class EditSessionFragment : Fragment() {
         } else {
             materialImageView.setImageResource(R.drawable.profile_placeholder)
         }
-        }
-        private fun saveSession() {
+    }
+
+    private fun saveSession() {
         val topic = topicEditText.text.toString().trim()
         val date = dateEditText.text.toString().trim()
         val time = timeEditText.text.toString().trim()
@@ -126,21 +126,25 @@ class EditSessionFragment : Fragment() {
 
         progressBar.visibility = View.VISIBLE
 
-        val updatedSession = currentSession?.copy(
-            topic = topic,
-            date = date,
-            time = time,
-            status = status,
-            studentEmail = studentEmail
-        ) ?: Session(
-            id = args.sessionId,
-            topic = topic,
-            date = date,
-            time = time,
-            status = status,
-            studentEmail = studentEmail,
-            materialImageUrl = ""
-        )
+        val updatedSession = currentSession?.let { session ->
+            session.topic = topic
+            session.date = date
+            session.time = time
+            session.status = status
+            session.studentEmail = studentEmail
+            session
+        } ?: run {
+            Session(
+                id = args.sessionId,
+                topic = topic,
+                date = date,
+                time = time,
+                status = status,
+                studentEmail = studentEmail,
+                materialImageUrl = null,
+                locationAddress = null
+            )
+        }
 
         dbExecutor.execute {
             try {

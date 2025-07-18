@@ -1,6 +1,6 @@
 package com.example.studyflow
 
-import SessionListViewModel
+import com.example.studyflow.SessionListViewModel
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
