@@ -40,8 +40,8 @@ class CloudinaryModel {
         try {
             MediaManager.get()
                 .upload(file.path)
-                .unsigned("your_upload_preset_name")
-                .option("folder", "images")
+                .unsigned("studyflow_unsigned_uploads")
+                .option("folder", "studyflow_images")
                 .callback(object : UploadCallback {
                     override fun onStart(requestId: String) {}
 
@@ -49,11 +49,13 @@ class CloudinaryModel {
 
                     override fun onSuccess(requestId: String, resultData: Map<*, *>) {
                         val publicUrl = resultData["secure_url"] as? String ?: ""
+                        file.delete()
                         onSuccess(publicUrl)
                     }
 
                     override fun onError(requestId: String?, error: ErrorInfo?) {
                         onError(error?.description ?: "Unknown error")
+                        file.delete()
                     }
 
                     override fun onReschedule(requestId: String?, error: ErrorInfo?) {}

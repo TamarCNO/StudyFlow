@@ -1,6 +1,5 @@
 package com.example.studyflow
 
-import com.example.studyflow.SessionListViewModel
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -20,6 +19,8 @@ import com.google.firebase.firestore.memoryCacheSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import androidx.core.view.MenuProvider
+import androidx.lifecycle.Lifecycle
 
 class SessionsFragmentList : Fragment() {
 
@@ -38,27 +39,22 @@ class SessionsFragmentList : Fragment() {
         }
     }
 
-    // ✅ מנגנון בקרת סנכרון מתקדם
     private val sharedPref by lazy {
         requireContext().getSharedPreferences("sync_prefs", android.content.Context.MODE_PRIVATE)
     }
 
-    // ✅ דגל למניעת סנכרון כפול
     private var isSyncing = false
-
-    // ✅ דגל לבדיקה אם זה הטעינה הראשונה
     private var isFirstLoad = true
 
     companion object {
         private const val LAST_SYNC_KEY = "last_sync_timestamp"
-        private const val SYNC_INTERVAL_MS = 10 * 60 * 1000L // 10 דקות
-        private const val FORCE_SYNC_INTERVAL_MS = 60 * 60 * 1000L // שעה
-        private const val CACHE_VALIDITY_MS = 5 * 60 * 1000L // 5 דקות
+        private const val SYNC_INTERVAL_MS = 10 * 60 * 1000L
+        private const val FORCE_SYNC_INTERVAL_MS = 60 * 60 * 1000L
+        private const val CACHE_VALIDITY_MS = 5 * 60 * 1000L
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
@@ -75,11 +71,44 @@ class SessionsFragmentList : Fragment() {
         viewModel = androidx.lifecycle.ViewModelProvider(requireActivity())[SessionListViewModel::class.java]
 
         setupRecyclerView()
-        observeLocalData()
-        observeViewModel()
+        observeData()
+        setupMenu()
     }
 
-    // ✅ הגדרת RecyclerView
+    private fun setupMenu() {
+        val menuProvider = object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.bar_menu, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.profileFragment -> {
+                        try {
+                            findNavController().navigate(R.id.action_sessionsFragmentList_to_profileFragment)
+                            true
+                        } catch (e: Exception) {
+                            Log.e("SessionsFragmentList", "Navigation error to profile", e)
+                            false
+                        }
+                    }
+                    R.id.mapFragment -> {
+                        try {
+                            findNavController().navigate(R.id.action_sessionsFragmentList_to_mapFragment)
+                            true
+                        } catch (e: Exception) {
+                            Log.e("SessionsFragmentList", "Navigation error to map", e)
+                            false
+                        }
+                    }
+                    else -> false
+                }
+            }
+        }
+
+        requireActivity().addMenuProvider(menuProvider, viewLifecycleOwner, Lifecycle.State.RESUMED)
+    }
+
     private fun setupRecyclerView() {
         binding.sessionsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
@@ -95,87 +124,59 @@ class SessionsFragmentList : Fragment() {
         binding.sessionsRecyclerView.adapter = sessionsAdapter
     }
 
-    // ✅ צפייה בנתונים מקומיים
-    private fun observeLocalData() {
+    private fun observeData() {
         sessionDao.getAll().observe(viewLifecycleOwner) { sessions ->
+            updateAdapterSafely(sessions)
             viewModel.setSessions(sessions)
-
-            // רק בטעינה הראשונה נבדוק סנכרון
-            if (isFirstLoad) {
-                isFirstLoad = false
-
-                if (sessions.isEmpty()) {
-                    // אין נתונים מקומיים - סנכרון מיידי
-                    Log.d("SessionsFragmentList", "No local data - syncing immediately")
-                    performSync(showLoading = true, forceSync = true)
-                } else {
-                    // יש נתונים מקומיים - בדיקה חכמה
-                    Log.d("SessionsFragmentList", "Local data exists - checking if sync needed")
-                    checkAndSyncIfNeeded()
-                }
-            }
+            handleFirstLoadSync(sessions)
         }
     }
 
-    // ✅ צפייה ב-ViewModel
-    private fun observeViewModel() {
-        viewModel.sessions.observe(viewLifecycleOwner) { sessions ->
+    private fun updateAdapterSafely(sessions: List<Session>) {
+        if (::sessionsAdapter.isInitialized) {
             sessionsAdapter.set(sessions)
             sessionsAdapter.notifyDataSetChanged()
         }
     }
 
-    // ✅ בדיקה חכמה אם צריך סנכרון
-    private fun checkAndSyncIfNeeded() {
-        if (isSyncing) {
-            Log.d("SessionsFragmentList", "Already syncing - skipping")
-            return
-        }
+    private fun handleFirstLoadSync(localSessions: List<Session>) {
+        if (!isFirstLoad) return
+        isFirstLoad = false
 
+        when {
+            localSessions.isEmpty() -> performSync(showLoading = true, forceSync = true)
+            shouldSyncBasedOnTime() -> performSync(showLoading = false, forceSync = false)
+        }
+    }
+
+    private fun shouldSyncBasedOnTime(): Boolean {
+        if (isSyncing) return false
         val lastSync = sharedPref.getLong(LAST_SYNC_KEY, 0)
         val currentTime = System.currentTimeMillis()
         val timeSinceLastSync = currentTime - lastSync
 
-        Log.d("SessionsFragmentList", "Time since last sync: ${timeSinceLastSync / 1000} seconds")
-
-        when {
-            lastSync == 0L -> {
-                Log.d("SessionsFragmentList", "Never synced - performing initial sync")
-                performSync(showLoading = false, forceSync = true)
-            }
-            timeSinceLastSync > FORCE_SYNC_INTERVAL_MS -> {
-                Log.d("SessionsFragmentList", "Force sync needed - too much time passed")
-                performSync(showLoading = false, forceSync = true)
-            }
-            timeSinceLastSync > SYNC_INTERVAL_MS -> {
-                Log.d("SessionsFragmentList", "Regular background sync")
-                performSync(showLoading = false, forceSync = false)
-            }
-            else -> {
-                Log.d("SessionsFragmentList", "Sync not needed - recent sync available")
-            }
+        return when {
+            lastSync == 0L -> true
+            timeSinceLastSync > FORCE_SYNC_INTERVAL_MS -> true
+            timeSinceLastSync > SYNC_INTERVAL_MS -> true
+            else -> false
         }
     }
 
     private fun performSync(showLoading: Boolean, forceSync: Boolean = false) {
-        if (isSyncing) {
-            Log.d("SessionsFragmentList", "Sync already in progress")
-            return
-        }
+        if (isSyncing) return
 
-        val lastSync = sharedPref.getLong(LAST_SYNC_KEY, 0)
-        val currentTime = System.currentTimeMillis()
-
-        if (!forceSync && currentTime - lastSync < CACHE_VALIDITY_MS) {
-            Log.d("SessionsFragmentList", "Sync skipped - cache still valid")
-            if (showLoading) setLoadingState(false)
-            return
+        if (!forceSync) {
+            val lastSync = sharedPref.getLong(LAST_SYNC_KEY, 0)
+            val currentTime = System.currentTimeMillis()
+            if (currentTime - lastSync < CACHE_VALIDITY_MS) {
+                if (showLoading) setLoadingState(false)
+                return
+            }
         }
 
         isSyncing = true
         if (showLoading) setLoadingState(true)
-
-        Log.d("SessionsFragmentList", "Starting Firestore sync (force: $forceSync)")
 
         firestoreDb.collection("sessions")
             .get()
@@ -192,42 +193,41 @@ class SessionsFragmentList : Fragment() {
             try {
                 sessionDao.deleteAll()
                 sessionDao.insertAll(sessions)
-
-                sharedPref.edit()
-                    .putLong(LAST_SYNC_KEY, System.currentTimeMillis())
-                    .apply()
-
-                Log.d("SessionsFragmentList", "Successfully synced ${sessions.size} sessions")
-
+                saveLastSyncTime()
                 withContext(Dispatchers.Main) {
-                    isSyncing = false
-                    if (showLoading) setLoadingState(false)
+                    finalizeSyncOperation(showLoading, true)
                 }
             } catch (e: Exception) {
-                Log.e("SessionsFragmentList", "Error saving to local DB", e)
                 withContext(Dispatchers.Main) {
-                    isSyncing = false
-                    if (showLoading) setLoadingState(false)
-                    showErrorToast("Failed to save data locally")
+                    finalizeSyncOperation(showLoading, false)
+                    showErrorToast("Failed to save data locally: ${e.message}")
                 }
             }
         }
     }
 
     private fun handleSyncFailure(error: Exception, showLoading: Boolean) {
-        Log.e("SessionsFragmentList", "Firestore sync failed", error)
-
-        lifecycleScope.launch(Dispatchers.Main) {
-            isSyncing = false
-            if (showLoading) {
-                setLoadingState(false)
-                showErrorToast("Sync failed: ${error.message}")
-            }
+        finalizeSyncOperation(showLoading, false)
+        if (showLoading) {
+            showErrorToast("Sync failed: ${error.localizedMessage ?: "Unknown error"}")
         }
     }
 
+    private fun finalizeSyncOperation(showLoading: Boolean, success: Boolean) {
+        isSyncing = false
+        if (showLoading) setLoadingState(false)
+    }
+
+    private fun saveLastSyncTime() {
+        try {
+            sharedPref.edit().putLong(LAST_SYNC_KEY, System.currentTimeMillis()).apply()
+        } catch (_: Exception) {}
+    }
+
     private fun showErrorToast(message: String) {
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+        if (isAdded && context != null) {
+            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun setLoadingState(isLoading: Boolean) {
@@ -237,32 +237,9 @@ class SessionsFragmentList : Fragment() {
         }
     }
 
-    private fun manualRefresh() {
-        if (isSyncing) {
-            Toast.makeText(requireContext(), "Sync already in progress", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        Log.d("SessionsFragmentList", "Manual refresh triggered")
-        performSync(showLoading = true, forceSync = true)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.bar_menu, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.profileFragment -> {
-                findNavController().navigate(R.id.profileFragment)
-                true
-            }
-            R.id.mapFragment -> {
-                findNavController().navigate(R.id.action_sessionsFragmentList_to_mapFragment)
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
+    fun refreshData() {
+        if (!isSyncing) {
+            performSync(showLoading = true, forceSync = true)
         }
     }
 
@@ -272,9 +249,15 @@ class SessionsFragmentList : Fragment() {
         _binding = null
     }
 
-
     private fun clearSyncCache() {
-        sharedPref.edit().remove(LAST_SYNC_KEY).apply()
-        Log.d("SessionsFragmentList", "Sync cache cleared")
+        try {
+            sharedPref.edit().remove(LAST_SYNC_KEY).apply()
+        } catch (_: Exception) {}
+    }
+
+    private fun forceSyncNow() {
+        clearSyncCache()
+        isFirstLoad = true
+        performSync(showLoading = true, forceSync = true)
     }
 }

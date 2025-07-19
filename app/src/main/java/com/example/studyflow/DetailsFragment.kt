@@ -1,6 +1,5 @@
 package com.example.studyflow
 
-import com.example.studyflow.SessionListViewModel
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -108,15 +107,14 @@ class DetailsFragment : Fragment() {
         binding.sessionTimeTextView.text = session.time ?: ""
         binding.sessionStatusValue.text = session.status ?: ""
         binding.sessionStudentEmailValue.text = session.studentEmail ?: ""
+        binding.sessionLocationValue.text = session.locationAddress ?: ""
 
         if (!session.materialImageUrl.isNullOrEmpty()) {
             Picasso.get()
                 .load(session.materialImageUrl)
-                .placeholder(R.drawable.profile_placeholder)
-                .error(R.drawable.profile_placeholder)
                 .into(binding.sessionImageView)
         } else {
-            binding.sessionImageView.setImageResource(R.drawable.profile_placeholder)
+            binding.sessionImageView.setImageResource(R.drawable.materials)
         }
     }
 

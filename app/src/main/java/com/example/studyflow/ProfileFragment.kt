@@ -63,8 +63,6 @@ class ProfileFragment : Fragment() {
         if (photoUrl != null) {
             Picasso.get()
                 .load(photoUrl)
-                .placeholder(R.drawable.profile_placeholder)
-                .error(R.drawable.profile_placeholder)
                 .into(binding.profileImageView)
         } else {
             binding.profileImageView.setImageResource(R.drawable.profile_placeholder)

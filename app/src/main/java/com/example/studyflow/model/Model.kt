@@ -17,15 +17,15 @@ class Model private constructor() {
 
     fun addSession(session: Session, image: Bitmap?, callback: (Boolean) -> Unit) {
         if (image == null) {
-            firebaseModel.add(session) {
-                callback(true)
+            firebaseModel.add(session) { success ->
+                callback(success)
             }
         } else {
             cloudinaryModel.uploadBitmap(image,
                 onSuccess = { imageUrl ->
                     session.materialImageUrl = imageUrl
-                    firebaseModel.add(session) {
-                        callback(true)
+                    firebaseModel.add(session) { success ->
+                        callback(success)
                     }
                 },
                 onError = { error ->
@@ -33,6 +33,12 @@ class Model private constructor() {
                     callback(false)
                 }
             )
+        }
+    }
+
+    fun deleteSession(session: Session, callback: (Boolean) -> Unit) {
+        firebaseModel.delete(session) { success ->
+            callback(success)
         }
     }
 }
