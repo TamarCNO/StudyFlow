@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.fragment.app.viewModels
+import androidx.navigation.NavOptions
 import com.example.studyflow.auth.AuthViewModel
 import com.example.studyflow.databinding.FragmentProfileBinding
 import com.google.firebase.auth.FirebaseUser
@@ -35,8 +36,14 @@ class ProfileFragment : Fragment() {
             if (user != null) {
                 displayUserInfo(user)
             } else {
-                Toast.makeText(requireContext(), "User not logged in", Toast.LENGTH_SHORT).show()
-                findNavController().navigate(R.id.action_profileFragment_to_loginFragment)
+                if (findNavController().currentDestination?.id == R.id.profileFragment) {
+                    Toast.makeText(requireContext(), "Logged out successfully", Toast.LENGTH_SHORT).show()
+                    try {
+                        findNavController().navigate(R.id.action_profileFragment_to_loginFragment)
+                    } catch (e: Exception) {
+                        android.util.Log.w("ProfileFragment", "Navigation failed: ${e.message}")
+                    }
+                }
             }
         }
 
@@ -50,8 +57,8 @@ class ProfileFragment : Fragment() {
 
         binding.buttonLogout.setOnClickListener {
             authViewModel.logout()
-            Toast.makeText(requireContext(), "Logged out successfully", Toast.LENGTH_SHORT).show()
-            findNavController().navigate(R.id.loginFragment)
+            //Toast.makeText(requireContext(), "Logged out successfully", Toast.LENGTH_SHORT).show()
+            //findNavController().navigate(R.id.action_profileFragment_to_loginFragment)
         }
     }
 

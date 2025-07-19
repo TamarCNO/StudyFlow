@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewModelScope
 import com.example.studyflow.databinding.FragmentMapBinding
 import com.example.studyflow.model.Session
 import kotlinx.coroutines.Dispatchers

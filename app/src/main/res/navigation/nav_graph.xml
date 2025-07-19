@@ -92,6 +92,9 @@
         <action
             android:id="@+id/action_editSessionFragment_to_detailsFragment"
             app:destination="@id/detailsFragment" />
+        <action
+            android:id="@+id/action_editSessionFragment_to_sessionsFragmentList"
+            app:destination="@id/sessionsFragmentList" />
     </fragment>
 
     <fragment
@@ -112,13 +115,12 @@
 
     <fragment
         android:id="@+id/editProfileFragment"
-        android:name="com.example.studyflow.profile.EditProfileFragment"
+        android:name="com.example.studyflow.EditProfileFragment"
         android:label="EditProfileFragment"
         tools:layout="@layout/fragment_edit_profile">
         <action
             android:id="@+id/action_editProfileFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
-
     </fragment>
 
     <fragment

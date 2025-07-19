@@ -73,6 +73,7 @@ class SessionsFragmentList : Fragment() {
         setupRecyclerView()
         observeData()
         setupMenu()
+        performSync(showLoading = true, forceSync = true)
     }
 
     private fun setupMenu() {
@@ -85,7 +86,7 @@ class SessionsFragmentList : Fragment() {
                 return when (menuItem.itemId) {
                     R.id.profileFragment -> {
                         try {
-                            findNavController().navigate(R.id.action_sessionsFragmentList_to_profileFragment)
+                        findNavController().navigate(R.id.profileFragment)
                             true
                         } catch (e: Exception) {
                             Log.e("SessionsFragmentList", "Navigation error to profile", e)
@@ -94,7 +95,7 @@ class SessionsFragmentList : Fragment() {
                     }
                     R.id.mapFragment -> {
                         try {
-                            findNavController().navigate(R.id.action_sessionsFragmentList_to_mapFragment)
+                            findNavController().navigate(R.id.mapFragment)
                             true
                         } catch (e: Exception) {
                             Log.e("SessionsFragmentList", "Navigation error to map", e)

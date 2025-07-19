@@ -1,6 +1,7 @@
-package com.example.studyflow.profile
+package com.example.studyflow
 
 import android.Manifest
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
@@ -12,11 +13,9 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import androidx.core.content.PermissionChecker
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import com.example.studyflow.R
 import com.example.studyflow.auth.AuthViewModel
 import com.example.studyflow.databinding.FragmentEditProfileBinding
 import com.squareup.picasso.Picasso
@@ -106,8 +105,7 @@ class EditProfileFragment : Fragment() {
 
         binding.cameraIcon.setOnClickListener {
             when {
-                ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) ==
-                        PermissionChecker.PERMISSION_GRANTED -> {
+                ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED-> {
                     takePictureLauncher.launch(null)
                 }
                 else -> {

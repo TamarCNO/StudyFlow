@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -10,8 +9,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_centerInParent="true" />
-
-    <!-- Information text at the top of the screen -->
+    <!--
+         <!-Information text at the top of the screen
     <TextView
         android:id="@+id/textViewMapInfo"
         android:layout_width="match_parent"
@@ -24,7 +23,7 @@
         android:textSize="12sp"
         android:alpha="0.8" />
 
-    <!-- Floating Action Button for My Location (Top FAB) -->
+    <!- Floating Action Button for My Location (Top FAB)
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabMyLocation"
         android:layout_width="wrap_content"
@@ -37,7 +36,7 @@
         android:contentDescription="Go to my location"
         app:tint="@android:color/white" />
 
-    <!-- NEW: Floating Action Button for Show/Hide Sessions (Middle FAB) -->
+    <!- NEW: Floating Action Button for Show/Hide Sessions (Middle FAB)
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabShowSessions"
         android:layout_width="wrap_content"
@@ -51,7 +50,7 @@
         app:backgroundTint="#FF5722"
         app:tint="@android:color/white" />
 
-    <!-- Floating Action Button for Clear Markers (Bottom FAB) -->
+    <!- Floating Action Button for Clear Markers (Bottom FAB)
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabClearMarkers"
         android:layout_width="wrap_content"
@@ -63,5 +62,5 @@
         android:src="@android:drawable/ic_menu_delete"
         android:contentDescription="Clear all markers"
         app:tint="@android:color/white" />
-
+-->
 </RelativeLayout>

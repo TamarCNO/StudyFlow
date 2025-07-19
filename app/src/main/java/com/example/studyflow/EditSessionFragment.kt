@@ -179,7 +179,7 @@ class EditSessionFragment : Fragment() {
                 binding.progressBar.visibility = View.GONE
                 if (success) {
                     Toast.makeText(requireContext(), "Session saved successfully", Toast.LENGTH_SHORT).show()
-                    findNavController().popBackStack()
+                    findNavController().navigate(R.id.action_editSessionFragment_to_sessionsFragmentList)
                 } else {
                     Toast.makeText(requireContext(), "Failed to save session", Toast.LENGTH_LONG).show()
                 }
