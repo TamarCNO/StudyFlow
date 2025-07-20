@@ -3,64 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Main map view that takes up the entire screen -->
     <org.osmdroid.views.MapView
         android:id="@+id/mapView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_centerInParent="true" />
-    <!--
-         <!-Information text at the top of the screen
-    <TextView
-        android:id="@+id/textViewMapInfo"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:background="#FFFFFF"
-        android:padding="8dp"
-        android:text="Tap the map to add a marker • Long press to remove a marker"
-        android:textColor="#000000"
-        android:textSize="12sp"
-        android:alpha="0.8" />
-
-    <!- Floating Action Button for My Location (Top FAB)
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabMyLocation"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="144dp"
-        android:src="@android:drawable/ic_menu_mylocation"
-        android:contentDescription="Go to my location"
-        app:tint="@android:color/white" />
-
-    <!- NEW: Floating Action Button for Show/Hide Sessions (Middle FAB)
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabShowSessions"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="80dp"
-        android:src="@android:drawable/ic_dialog_info"
-        android:contentDescription="Toggle sessions visibility"
-        app:backgroundTint="#FF5722"
-        app:tint="@android:color/white" />
-
-    <!- Floating Action Button for Clear Markers (Bottom FAB)
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabClearMarkers"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:src="@android:drawable/ic_menu_delete"
-        android:contentDescription="Clear all markers"
-        app:tint="@android:color/white" />
--->
 </RelativeLayout>

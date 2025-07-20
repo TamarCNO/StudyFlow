@@ -74,7 +74,6 @@ class LoginFragment : Fragment() {
                     try {
                         findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToSessionsFragmentList())
                     } catch (e: Exception) {
-                        // Navigation might fail if already navigating or fragment is destroyed
                         android.util.Log.w("LoginFragment", "Navigation failed: ${e.message}")
                     }
                 }
